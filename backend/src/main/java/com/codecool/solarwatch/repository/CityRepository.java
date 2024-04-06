@@ -7,9 +7,6 @@ import java.util.Optional;
 
 public interface CityRepository extends JpaRepository<City, Long> {
     Optional<City> findByName(String name);
-<<<<<<< HEAD
-=======
 
     void deleteByName(String name);
->>>>>>> 8064708 (please work)
 }

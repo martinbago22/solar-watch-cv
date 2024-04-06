@@ -1,10 +1,6 @@
 package com.codecool.solarwatch.service;
 
-<<<<<<< HEAD
 import com.codecool.solarwatch.model.Coordinates;
-=======
-import com.codecool.solarwatch.model.api_response.Coordinates;
->>>>>>> 8064708 (please work)
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
