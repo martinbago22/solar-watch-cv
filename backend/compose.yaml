@@ -3,7 +3,7 @@ version: '3.8'
 # be kell settelni minden egyes environment variable-t (ami az application propertiesben a jobb oldalon van az itt a bal oldalon.
 services:
   app:
-    build: .
+    build: ..
     environment:
       - DB_URL=jdbc:postgresql://db:5432/weatherforecastapi
       - DB_USERNAME=postgres
