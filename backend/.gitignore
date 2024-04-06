@@ -140,7 +140,7 @@ local.properties
 
 # BlueJ files
 *.ctxt
-
+compose.yaml
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 

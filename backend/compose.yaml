@@ -4,6 +4,12 @@ version: '3.8'
 services:
   app:
     build: .
+    environment:
+      - DB_URL=jdbc:postgresql://db:5432/weatherforecastapi
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=dulmiter22
+      - POSTGRES_PW=dulmiter22
+      - API_KEY=b81391281df631bbfa845d8e5b0be01f
     depends_on:
       - db
     ports:
