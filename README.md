@@ -86,10 +86,10 @@ Getting sunrise and sunset times and current weather information for cities you 
 
 | File                                                                                        | Summary                                        |
 | ---                                                                                         | ---                                            |
-| [Dockerfile](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/Dockerfile) | HTTP error 401 for prompt `backend/Dockerfile` |
-| [mvnw.cmd](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/mvnw.cmd)     | HTTP error 401 for prompt `backend/mvnw.cmd`   |
-| [pom.xml](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/pom.xml)       | HTTP error 401 for prompt `backend/pom.xml`    |
-| [mvnw](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/mvnw)             | HTTP error 401 for prompt `backend/mvnw`       |
+| [Dockerfile](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/Dockerfile) | |
+| [mvnw.cmd](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/mvnw.cmd)     | |
+| [pom.xml](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/pom.xml)       | |
+| [mvnw](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/mvnw)             | |
 
 </details>
 
@@ -97,7 +97,7 @@ Getting sunrise and sunset times and current weather information for cities you 
 
 | File                                                                                                           | Summary                                                           |
 | ---                                                                                                            | ---                                                               |
-| [import.sql](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/src/main/resources/import.sql) | HTTP error 401 for prompt `backend/src/main/resources/import.sql` |
+| [import.sql](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/src/main/resources/import.sql) | |
 
 </details>
 
@@ -105,7 +105,7 @@ Getting sunrise and sunset times and current weather information for cities you 
 
 | File                                                                                                                                                              | Summary                                                                                              |
 | ---                                                                                                                                                               | ---                                                                                                  |
-| [SolarWatchApplication.java](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/src/main/java/com/codecool/solarwatch/SolarWatchApplication.java) | HTTP error 401 for prompt `backend/src/main/java/com/codecool/solarwatch/SolarWatchApplication.java` |
+| [SolarWatchApplication.java](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/src/main/java/com/codecool/solarwatch/SolarWatchApplication.java) | |
 
 </details>
 
@@ -113,8 +113,8 @@ Getting sunrise and sunset times and current weather information for cities you 
 
 | File                                                                                                                                                                              | Summary                                                                                                             |
 | ---                                                                                                                                                                               | ---                                                                                                                 |
-| [WebClientConfiguration.java](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/src/main/java/com/codecool/solarwatch/configuration/WebClientConfiguration.java) | HTTP error 401 for prompt `backend/src/main/java/com/codecool/solarwatch/configuration/WebClientConfiguration.java` |
-| [DataBaseInitializer.java](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/src/main/java/com/codecool/solarwatch/configuration/DataBaseInitializer.java)       | HTTP error 401 for prompt `backend/src/main/java/com/codecool/solarwatch/configuration/DataBaseInitializer.java`    |
+| [WebClientConfiguration.java](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/src/main/java/com/codecool/solarwatch/configuration/WebClientConfiguration.java) | |
+| [DataBaseInitializer.java](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/src/main/java/com/codecool/solarwatch/configuration/DataBaseInitializer.java)       | |
 
 </details>
 
@@ -122,7 +122,7 @@ Getting sunrise and sunset times and current weather information for cities you 
 
 | File                                                                                                                                       | Summary                                                                                     |
 | ---                                                                                                                                        | ---                                                                                         |
-| [Utility.java](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/src/main/java/com/codecool/solarwatch/util/Utility.java) | HTTP error 401 for prompt `backend/src/main/java/com/codecool/solarwatch/util/Utility.java` |
+| [Utility.java](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/src/main/java/com/codecool/solarwatch/util/Utility.java) | |
 
 </details>
 
@@ -130,10 +130,10 @@ Getting sunrise and sunset times and current weather information for cities you 
 
 | File                                                                                                                                                                             | Summary                                                                                                           |
 | ---                                                                                                                                                                              | ---                                                                                                               |
-| [RoleRepository.java](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/src/main/java/com/codecool/solarwatch/repository/RoleRepository.java)                   | HTTP error 401 for prompt `backend/src/main/java/com/codecool/solarwatch/repository/RoleRepository.java`          |
-| [SunriseSunsetRepository.java](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/src/main/java/com/codecool/solarwatch/repository/SunriseSunsetRepository.java) | HTTP error 401 for prompt `backend/src/main/java/com/codecool/solarwatch/repository/SunriseSunsetRepository.java` |
-| [UserRepository.java](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/src/main/java/com/codecool/solarwatch/repository/UserRepository.java)                   | HTTP error 401 for prompt `backend/src/main/java/com/codecool/solarwatch/repository/UserRepository.java`          |
-| [CityRepository.java](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/src/main/java/com/codecool/solarwatch/repository/CityRepository.java)                   | HTTP error 401 for prompt `backend/src/main/java/com/codecool/solarwatch/repository/CityRepository.java`          |
+| [RoleRepository.java](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/src/main/java/com/codecool/solarwatch/repository/RoleRepository.java)                   | |
+| [SunriseSunsetRepository.java](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/src/main/java/com/codecool/solarwatch/repository/SunriseSunsetRepository.java) | |
+| [UserRepository.java](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/src/main/java/com/codecool/solarwatch/repository/UserRepository.java)                   | |
+| [CityRepository.java](https://github.com/martinbago22/solar-watch-cv/blob/master/backend/src/main/java/com/codecool/solarwatch/repository/CityRepository.java)                   | |
 
 </details>
 
