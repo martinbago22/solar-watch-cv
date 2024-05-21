@@ -16,8 +16,10 @@
 <p align="center">
 	<a href="https://www.java.com/en/"> <img src="https://img.shields.io/badge/JavaScript-F7DF1E.svg?style=flat&logo=JavaScript&logoColor=black" alt="JavaScript" /> </a>
 	<a href="https://www.postgresql.org"> <img src="https://img.shields.io/badge/PostgreSQL-4169E1.svg?style=flat&logo=PostgreSQL&logoColor=white" alt="PostgreSQL"> </a>
-	<a href="https://www.docker.com"><img src="https://img.shields.io/badge/Docker-2496ED.svg?style=flat&logo=Docker&logoColor=white" alt="Docker"> </a>
-	<a href="https://www.java.com/en/"><img src="https://img.shields.io/badge/java-%23ED8B00.svg?style=flat&logo=openjdk&logoColor=white" alt="java"> </a>
+	<a href="https://www.docker.com"> <img src="https://img.shields.io/badge/Docker-2496ED.svg?style=flat&logo=Docker&logoColor=white" alt="Docker"> </a>
+	<a href="https://www.java.com/en/"> <img src="https://img.shields.io/badge/Java-%23ED8B00.svg?style=flat&logo=openjdk&logoColor=white" alt="Java"> </a>
+	<a href="https://maven.apache.org"> <img src="https://img.shields.io/badge/Apache Maven-C71A36.svg?style=flat&logo=apachemaven&logoColor=white" alt="Maven"> </a>
+	<a href="https://spring.io/projects/spring-boot"> <img src="https://img.shields.io/badge/Spring boot-6DB33F.svg?style=flat&logo=springboot&logoColor=green" alt="Spring Boot"> </a>
 </p>
 <hr>
 
@@ -32,9 +34,6 @@
 >   - [ Running solar-watch-cv](#-running-solar-watch-cv)
 >   - [ Tests](#-tests)
 > - [ Project Roadmap](#-project-roadmap)
-> - [ Contributing](#-contributing)
-> - [ License](#-license)
-> - [ Acknowledgments](#-acknowledgments)
 
 ---
 
@@ -337,12 +336,5 @@ To execute tests, run:
 ```sh
 mvn test
 ```
-
----
-
-
-##  License
-
-This project is protected under the [SELECT-A-LICENSE](https://choosealicense.com/licenses) License. For more details, refer to the [LICENSE](https://choosealicense.com/licenses/) file.
 
 ---
