@@ -5,7 +5,7 @@
     <h1 align="center">SOLAR-WATCH-CV</h1>
 </p>
 <p align="center">
-	<a href="https://www.java.com/en/" <img src="https://img.shields.io/github/license/martinbago22/solar-watch-cv?style=flat&color=0080ff" alt="license"> </a>
+	<img src="https://img.shields.io/github/license/martinbago22/solar-watch-cv?style=flat&color=0080ff" alt="license">
 	<img src="https://img.shields.io/github/last-commit/martinbago22/solar-watch-cv?style=flat&logo=git&logoColor=white&color=0080ff" alt="last-commit">
 	<img src="https://img.shields.io/github/languages/top/martinbago22/solar-watch-cv?style=flat&color=0080ff" alt="repo-top-language">
 	<img src="https://img.shields.io/github/languages/count/martinbago22/solar-watch-cv?style=flat&color=0080ff" alt="repo-language-count">
@@ -14,7 +14,7 @@
 		<em>Developed with the software and tools below.</em>
 </p>
 <p align="center">
-	<img src="https://img.shields.io/badge/JavaScript-F7DF1E.svg?style=flat&logo=JavaScript&logoColor=black" alt="JavaScript">
+	<a href="https://www.java.com/en/"> <img src="https://img.shields.io/badge/JavaScript-F7DF1E.svg?style=flat&logo=JavaScript&logoColor=black" alt="JavaScript" /> </a>
 	<img src="https://img.shields.io/badge/PostgreSQL-4169E1.svg?style=flat&logo=PostgreSQL&logoColor=white" alt="PostgreSQL">
 	<img src="https://img.shields.io/badge/Docker-2496ED.svg?style=flat&logo=Docker&logoColor=white" alt="Docker">
 	<img src="https://img.shields.io/badge/java-%23ED8B00.svg?style=flat&logo=openjdk&logoColor=white" alt="java">
