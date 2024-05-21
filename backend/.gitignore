@@ -130,6 +130,7 @@ local.properties
 *_BASE_*.txt
 *_LOCAL_*.txt
 *_REMOTE_*.txt
+compose.yaml
 
 ### Java ###
 # Compiled class file
@@ -138,9 +139,9 @@ local.properties
 # Log file
 *.log
 
+
 # BlueJ files
 *.ctxt
-compose.yaml
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
