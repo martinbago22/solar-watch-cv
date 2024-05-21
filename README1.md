@@ -40,13 +40,13 @@
 
 ##  Overview
 
-HTTP error 401 for prompt `overview`
+This is an educational school project with the goal of practicing the Spring Boot framework for Java.  `overview`
 
 ---
 
 ##  Features
 
-HTTP error 401 for prompt `features`
+Getting sunrise and sunset times and current weather information for cities you search for with user authentication included. `features`
 
 ---
 
