@@ -22,12 +22,10 @@
 > - [ Overview](#-overview)
 > - [ Features](#-features)
 > - [ Repository Structure](#-repository-structure)
-> - [ Modules](#-modules)
 > - [ Getting Started](#-getting-started)
 >   - [ Installation](#-installation)
 >   - [ Running solar-watch-cv](#-running-solar-watch-cv)
 >   - [ Tests](#-tests)
-> - [ Project Roadmap](#-project-roadmap)
 
 ---
 
