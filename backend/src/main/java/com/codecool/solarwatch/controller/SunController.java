@@ -5,10 +5,7 @@ import com.codecool.solarwatch.model.api_response.current_weather_response.Curre
 import com.codecool.solarwatch.service.OpenWeatherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -29,7 +26,7 @@ public class SunController {
     }
 
     @GetMapping("/current")
-    public ResponseEntity<?> getCurrentWeatherInfoFrom(@RequestParam String city) {
+    public ResponseEntity<?> getCurrentWeatherInfoFrom(@RequestParam(defaultValue = "Budapest") String city) {
         CurrentWeatherResponse currentWeatherDetailsResponse =
                 this.openWeatherService.getCurrentWeatherResponseFor(city);
         return ResponseEntity.ok(this.openWeatherService.getCurrentWeatherInfoDTOFrom(currentWeatherDetailsResponse, city));
