@@ -27,5 +27,14 @@
             console.error(e);
         }
     }
-    registerUser();
+    async function getWeatherInfo() {
+        try {
+            const response = await fetch("http://localhost:8080/api/weatherforecast/current");
+            const weatherInfo = await response.json();
+            console.log(weatherInfo);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    getWeatherInfo();
 </script>
