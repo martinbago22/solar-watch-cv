@@ -26,7 +26,7 @@ public class SunController {
     }
 
     @GetMapping("/current")
-    public ResponseEntity<?> getCurrentWeatherInfoFrom(@RequestParam String city) {
+    public ResponseEntity<?> getCurrentWeatherInfoFrom(@RequestParam(defaultValue = "Budapest") String city) {
         CurrentWeatherResponse currentWeatherDetailsResponse =
                 this.openWeatherService.getCurrentWeatherResponseFor(city);
         return ResponseEntity.ok(this.openWeatherService.getCurrentWeatherInfoDTOFrom(currentWeatherDetailsResponse, city));
