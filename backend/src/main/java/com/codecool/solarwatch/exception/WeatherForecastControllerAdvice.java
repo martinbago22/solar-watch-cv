@@ -13,4 +13,11 @@ public class WeatherForecastControllerAdvice {
     public String notSupportedCityExceptionHandler(InvalidCityException e) {
         return e.getMessage();
     }
+
+    @ResponseBody
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String UserNameAlreadyExistsExceptionHandler(UserAlreadyExistsException e) {
+        return e.getMessage();
+    }
 }
