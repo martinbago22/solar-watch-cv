@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
-@org.springframework.web.bind.annotation.ControllerAdvice(annotations = RestController.class)
+@ControllerAdvice(annotations = RestController.class)
 @Component
 public class WeatherForecastControllerAdvice {
     @ResponseBody
@@ -17,7 +17,7 @@ public class WeatherForecastControllerAdvice {
     @ResponseBody
     @ExceptionHandler(UserAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String UserNameAlreadyExistsExceptionHandler(UserAlreadyExistsException e) {
+    public String userNameAlreadyExistsExceptionHandler(UserAlreadyExistsException e) {
         return e.getMessage();
     }
 }
