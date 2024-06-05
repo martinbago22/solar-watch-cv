@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div>
-    <form @submit.prevent="console.log('ok')">
+    <form @submit.prevent="registerUser">
       <label for="userName">Username</label>
       <input placeholder="John Doe" v-model="username" id="userName" />
 
@@ -19,6 +19,7 @@ import { getWeatherInfo, registerUser } from '../../api/fetchingMethods'
 const username = ref<string>('');
 const password = ref<string>('');
 getWeatherInfo();
+
 
 
 </script>
