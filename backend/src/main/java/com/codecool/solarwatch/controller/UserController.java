@@ -31,12 +31,12 @@ public class UserController {
     }
     // TODO itt mit kell visszaküldeni? jwt string? hogyan köti össze a responseból kapott bármit a kliens böngészője?
     @PostMapping("login")
-    public ResponseEntity<?> login(@RequestBody UsernamePasswordDTO userRequest) {
+    public ResponseEntity<String> login(@RequestBody UsernamePasswordDTO userRequest) {
         String jwt = this.userService.login(userRequest);
         return ResponseEntity.ok(jwt);
     }
     @GetMapping("getAdmin")
-    public ResponseEntity<?> grantAdmin(@RequestParam(required = true) String userName) {
+    public ResponseEntity<HttpStatusCode> grantAdmin(@RequestParam(required = true) String userName) {
         this.userService.grantAdminPrivilegesFor(userName);
         return ResponseEntity.ok().build();
     }
