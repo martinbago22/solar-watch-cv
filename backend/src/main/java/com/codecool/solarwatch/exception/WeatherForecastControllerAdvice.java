@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 @org.springframework.web.bind.annotation.ControllerAdvice(annotations = RestController.class)
 @Component
-public class ControllerAdvice {
+public class WeatherForecastControllerAdvice {
     @ResponseBody
     @ExceptionHandler(InvalidCityException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
