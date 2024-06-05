@@ -4,9 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
-@ControllerAdvice(annotations = RestController.class)
+@org.springframework.web.bind.annotation.ControllerAdvice(annotations = RestController.class)
 @Component
-public class WeatherForecastControllerAdvice {
+public class ControllerAdvice {
     @ResponseBody
     @ExceptionHandler(InvalidCityException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
