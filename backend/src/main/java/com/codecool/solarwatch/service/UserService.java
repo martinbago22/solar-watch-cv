@@ -1,5 +1,6 @@
 package com.codecool.solarwatch.service;
 
+import com.codecool.solarwatch.exception.UserAlreadyExistsException;
 import com.codecool.solarwatch.model.dto.UsernamePasswordDTO;
 import com.codecool.solarwatch.model.entity.Role;
 import com.codecool.solarwatch.model.entity.RoleEntity;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -63,15 +65,19 @@ public class UserService {
     @Transactional
     //TODO handle errors (valid username, no whitespace, min and max length, check db if user with that name already exists if so throw exception
     public boolean createUser(UsernamePasswordDTO usernamePasswordDTORequest) {
-        try {
-            String hashedPassword = encoder.encode(usernamePasswordDTORequest.password());
-            UserEntity newUser = new UserEntity(usernamePasswordDTORequest.username(), hashedPassword);
-            addRoleFor(newUser, Role.ROLE_USER);
-            this.userRepository.save(newUser);
-            return true;
-        } catch (RuntimeException e) {
-            LOGGER.error(e.getMessage());
-            return false;
+        if (checkIfUserExists(usernamePasswordDTORequest.username())) {
+            throw new UserAlreadyExistsException(usernamePasswordDTORequest.username());
+        } else {
+            try {
+                String hashedPassword = encoder.encode(usernamePasswordDTORequest.password());
+                UserEntity newUser = new UserEntity(usernamePasswordDTORequest.username(), hashedPassword);
+                addRoleFor(newUser, Role.ROLE_USER);
+                this.userRepository.save(newUser);
+                return true;
+            } catch (RuntimeException e) {
+                LOGGER.error(e.getMessage());
+                return false;
+            }
         }
     }
 
@@ -99,9 +105,14 @@ public class UserService {
     }
 
     private UserEntity getUserBy(String userName) {
-        return this.userRepository.findUserEntitiesByUsername(userName)
+        return this.userRepository.findUserEntityByUsername(userName)
                 .orElseThrow(()
                         -> new UsernameNotFoundException("Couldn't find user by that name"));
+    }
+
+    private boolean checkIfUserExists(String userName) {
+        Optional<UserEntity> searchedUser = this.userRepository.findUserEntityByUsername(userName);
+        return searchedUser.isPresent();
     }
 
     @Transactional
