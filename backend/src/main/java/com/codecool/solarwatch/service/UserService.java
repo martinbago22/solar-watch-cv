@@ -61,6 +61,7 @@ public class UserService {
     }
 
     @Transactional
+    //TODO handle errors (valid username, no whitespace, min and max length, check db if user with that name already exists if so throw exception
     public boolean createUser(UsernamePasswordDTO usernamePasswordDTORequest) {
         try {
             String hashedPassword = encoder.encode(usernamePasswordDTORequest.password());
