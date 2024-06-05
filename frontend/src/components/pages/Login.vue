@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div>
-    <form @submit.prevent="greet">
+    <form @submit.prevent="console.log('ok')">
       <label for="userName">Username</label>
       <input placeholder="John Doe" v-model="username" id="userName" />
 
@@ -15,32 +15,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { getWeatherInfo, registerUser } from '../../api/fetchingMethods'
 const username = ref<string>('');
 const password = ref<string>('');
-function greet(): void {
-  alert('Thank you for registering');
-}
-/* async function registerUser(): Promise<string> {
-  try {
-    const userRegisterRequest = {
-      username,
-      password
-    };
-    const response = await fetch
-  }
-} */
-async function fetchWeather(): Promise<string> {
-  try {
-    const response = await fetch("/api/weatherforecast/current");
-    const weather = await response.json();
-    console.log(weather);
-    return weather;
-  } catch (e) {
-    console.error(e);
-    return "Error fetching weather data";
-  }
-}
-fetchWeather();
+getWeatherInfo();
+
+
 </script>
 
 <style scoped>
