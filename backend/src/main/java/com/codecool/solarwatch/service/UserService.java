@@ -107,7 +107,7 @@ public class UserService {
     private UserEntity getUserBy(String userName) {
         return this.userRepository.findUserEntityByUsername(userName)
                 .orElseThrow(()
-                        -> new UsernameNotFoundException("Couldn't find user by that name"));
+                        -> new UsernameNotFoundException(String.format("Couldn't find user named [ %s ]", userName)));
     }
 
     private boolean checkIfUserExists(String userName) {
