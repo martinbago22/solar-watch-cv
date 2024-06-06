@@ -210,4 +210,5 @@ public class OpenWeatherService {
         Matcher m = p.matcher(currentWeatherResponse.currentWeatherDescription()[0].description());
         return m.find();
     }
+
 }

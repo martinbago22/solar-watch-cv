@@ -7,5 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record CurrentWeatherResponse(@JsonProperty("weather") CurrentWeatherDescription[] currentWeatherDescription,
                                      @JsonProperty("main") MainWeatherInfo mainWeatherInfo,
                                      @JsonProperty("wind") WindInfo windInfo,
-                                     @JsonProperty("visibility") double visibility) {
+                                     @JsonProperty("visibility") double visibility,
+                                     @JsonProperty("sys") CurrentWeatherAPISunriseSunsetTime currentWeatherAPISunriseSunsetTime) {
 }
