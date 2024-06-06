@@ -1,5 +1,6 @@
 package com.codecool.solarwatch.service;
 
+import com.codecool.solarwatch.exception.InvalidUserNameException;
 import com.codecool.solarwatch.exception.UserAlreadyExistsException;
 import com.codecool.solarwatch.model.dto.UsernamePasswordDTO;
 import com.codecool.solarwatch.model.entity.Role;
@@ -65,7 +66,7 @@ public class UserService {
     }
 
     @Transactional
-    //TODO handle errors (valid username, no whitespace, min and max length, check db if user with that name already exists if so throw exception
+    //TODO handle errors (valid username, no whitespace, check db if user with that name already exists if so throw exception
     public boolean createUser(UsernamePasswordDTO usernamePasswordDTORequest) {
         if (checkIfUserExists(usernamePasswordDTORequest.username())) {
             throw new UserAlreadyExistsException(usernamePasswordDTORequest.username());
@@ -141,5 +142,14 @@ public class UserService {
     }
     private boolean isUserNameValid(String userName) {
         return !containsSpecialCharacters(userName) && !containsWhiteSpace(userName);
+    }
+    private boolean userNameValidator(String username) {
+        boolean userNameAlreadyExists = checkIfUserExists(username);
+        boolean isUserNameValid = isUserNameValid(username);
+        if (userNameAlreadyExists) {
+            throw new UserAlreadyExistsException(username);
+        } else if (!isUserNameValid(username)) {
+            throw new InvalidUserNameException();
+        } else return true;
     }
 }
