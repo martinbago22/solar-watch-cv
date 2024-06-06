@@ -7,12 +7,14 @@ import com.codecool.solarwatch.exception.SunriseSunsetNotFoundException;
 import com.codecool.solarwatch.model.Coordinates;
 import com.codecool.solarwatch.model.SolarResultDetails;
 import com.codecool.solarwatch.model.WeatherReport;
+import com.codecool.solarwatch.model.api_response.current_weather_response.CurrentWeatherDescription;
 import com.codecool.solarwatch.model.api_response.current_weather_response.CurrentWeatherResponse;
 import com.codecool.solarwatch.model.dto.CurrentWeatherInfoDTO;
 import com.codecool.solarwatch.model.entity.City;
 import com.codecool.solarwatch.model.entity.SunriseSunset;
 import com.codecool.solarwatch.repository.CityRepository;
 import com.codecool.solarwatch.repository.SunriseSunsetRepository;
+import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.codecool.solarwatch.util.Utility.*;
 
@@ -192,6 +196,18 @@ public class OpenWeatherService {
                 convertToCelsius(currentWeatherResponse.mainWeatherInfo().temperature()),
                 currentWeatherResponse.mainWeatherInfo().humidity(),
                 currentWeatherResponse.windInfo().speed(),
-                currentWeatherResponse.currentWeatherInfo()[0].description());
+                currentWeatherResponse.currentWeatherDescription()[0].description(),
+                currentWeatherResponse.visibility(),
+                provideWarningMessageAboutCloudyWeather(currentWeatherResponse));
+    }
+    private String provideWarningMessageAboutCloudyWeather(CurrentWeatherResponse currentWeatherResponse) {
+        boolean isCloudyWeather = isCloudyWeather(currentWeatherResponse);
+        return isCloudyWeather ? "Weather seems to be cloudy and not ideal for taking pictures" :
+                "Weather seems to be ideal for taking pictures";
+    }
+    private boolean isCloudyWeather(CurrentWeatherResponse currentWeatherResponse) {
+        Pattern p = Pattern.compile("cloud", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(currentWeatherResponse.currentWeatherDescription()[0].description());
+        return m.find();
     }
 }
