@@ -68,9 +68,7 @@ public class UserService {
     @Transactional
     //TODO handle errors (valid username, no whitespace, check db if user with that name already exists if so throw exception
     public boolean createUser(UsernamePasswordDTO usernamePasswordDTORequest) {
-        if (checkIfUserExists(usernamePasswordDTORequest.username())) {
-            throw new UserAlreadyExistsException(usernamePasswordDTORequest.username());
-        } else {
+        if (userNameValidator(usernamePasswordDTORequest.username())) {
             try {
                 String hashedPassword = encoder.encode(usernamePasswordDTORequest.password());
                 UserEntity newUser = new UserEntity(usernamePasswordDTORequest.username(), hashedPassword);
@@ -81,7 +79,7 @@ public class UserService {
                 LOGGER.error(e.getMessage());
                 return false;
             }
-        }
+        } else return false;
     }
 
     //TODO mit küldünk itt vissza? String jwtToken? boolean? hol adjuk hozzá a role-t hogy a loginelt user már user roleban van?
@@ -131,24 +129,28 @@ public class UserService {
                         -> new RuntimeException("Role not found"));
         // TODO proper error handling instead of RuntimeException
     }
+
     private boolean containsSpecialCharacters(String userName) {
         Pattern p = Pattern.compile(
                 "[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher(userName);
         return m.find();
     }
+
     private boolean containsWhiteSpace(String userName) {
         return userName.contains(" ");
     }
+
     private boolean isUserNameValid(String userName) {
         return !containsSpecialCharacters(userName) && !containsWhiteSpace(userName);
     }
+
     private boolean userNameValidator(String username) {
         boolean userNameAlreadyExists = checkIfUserExists(username);
         boolean isUserNameValid = isUserNameValid(username);
         if (userNameAlreadyExists) {
             throw new UserAlreadyExistsException(username);
-        } else if (!isUserNameValid(username)) {
+        } else if (!isUserNameValid) {
             throw new InvalidUserNameException();
         } else return true;
     }
