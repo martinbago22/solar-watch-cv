@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class UserService {
@@ -127,5 +129,14 @@ public class UserService {
                 .orElseThrow(()
                         -> new RuntimeException("Role not found"));
         // TODO proper error handling instead of RuntimeException
+    }
+    private boolean containsSpecialCharacters(String userName) {
+        Pattern p = Pattern.compile(
+                "[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(userName);
+        return m.find();
+    }
+    private boolean containsWhiteSpace(String userName) {
+        return userName.contains(" ");
     }
 }
