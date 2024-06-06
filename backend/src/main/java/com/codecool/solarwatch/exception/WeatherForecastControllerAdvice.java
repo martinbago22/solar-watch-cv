@@ -20,4 +20,9 @@ public class WeatherForecastControllerAdvice {
     public String userNameAlreadyExistsExceptionHandler(UserAlreadyExistsException e) {
         return e.getMessage();
     }
+
+    @ResponseBody
+    @ExceptionHandler(InvalidUserNameException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String invalidUserNameExceptionHandler(InvalidUserNameException e) { return e.getMessage(); }
 }
