@@ -139,4 +139,7 @@ public class UserService {
     private boolean containsWhiteSpace(String userName) {
         return userName.contains(" ");
     }
+    private boolean isUserNameValid(String userName) {
+        return !containsSpecialCharacters(userName) && !containsWhiteSpace(userName);
+    }
 }
