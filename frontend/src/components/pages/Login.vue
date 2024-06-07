@@ -20,8 +20,6 @@ const username = ref<string>('');
 const password = ref<string>('');
 getWeatherInfo();
 
-
-
 </script>
 
 <style scoped>
