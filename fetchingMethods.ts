@@ -1,3 +1,4 @@
+import axios from 'axios';
 export async function fetchWeather(): Promise<string> {
 	try {
 		const response = await fetch('/api/weatherforecast/current');
@@ -44,4 +45,13 @@ function isUserNameValid(username: string): boolean {
 		isValid = false;
 	}
 	return isValid;
+}
+
+async function getWeatherInfo() {
+	try {
+		const response = axios.get('/api/weatherforecast/current');
+		console.log(response);
+	} catch (e) {
+		console.error(e);
+	}
 }
