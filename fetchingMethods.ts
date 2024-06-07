@@ -9,6 +9,10 @@ export async function fetchWeather(): Promise<string> {
 		return 'Error fetching weather data';
 	}
 }
+
+// szeparálni a megjelenítést , if !response.ok  throw error
+// axios library
+// options - composition összehasonlítása
 export async function registerUser(
 	username: string,
 	password: string
