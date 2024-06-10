@@ -41,37 +41,6 @@ Getting sunrise and sunset times and current weather information for cities you 
 
 ---
 
-##  Repository Structure
-
-```sh
-└── solar-watch-cv/
-    ├── README.md
-    ├── backend
-    │   ├── .gitignore
-    │   ├── .mvn
-    │   │   └── wrapper
-    │   │       └── maven-wrapper.properties
-    │   ├── Dockerfile
-    │   ├── mvnw
-    │   ├── mvnw.cmd
-    │   ├── pom.xml
-    │   └── src
-    │       ├── main
-    │       │   ├── java
-    │       │   │   └── com
-    │       │   └── resources
-    │       │       ├── application.properties
-    │       │       └── import.sql
-    │       └── test
-    │           └── java
-    │               └── com
-    └── frontend
-        └── src
-            └── codewars.js
-```
-
----
-
 ##  Getting Started
 
 ***Requirements***
