@@ -1,19 +1,31 @@
 <p align="center">
-  <img />
+    <img />
 </p>
 <p align="center">
     <h1 align="center">SOLAR-WATCH-CV</h1>
 </p>
 <p align="center">
-		<em>Developed with the software and tools below.</em>
+    <em>Developed with the software and tools below.</em>
 </p>
 <p align="center">
-	<a href="https://www.java.com/en/"> <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg" /> </a>
-	<a href="https://www.postgresql.org"> <img src="https://img.shields.io/badge/PostgreSQL-4169E1.svg?style=flat&logo=PostgreSQL&logoColor=white" alt="PostgreSQL"> </a>
-	<a href="https://www.docker.com"> <img src="https://img.shields.io/badge/Docker-2496ED.svg?style=flat&logo=Docker&logoColor=white" alt="Docker"> </a>
-	<a href="https://www.java.com/en/"> <img src="https://img.shields.io/badge/Java-%23ED8B00.svg?style=flat&logo=openjdk&logoColor=white" alt="Java"> </a>
-	<a href="https://maven.apache.org"> <img src="https://img.shields.io/badge/Apache Maven-C71A36.svg?style=flat&logo=apachemaven&logoColor=white" alt="Maven"> </a>
-	<a href="https://spring.io/projects/spring-boot"> <img src="https://img.shields.io/badge/Spring Boot-6DB33F.svg?style=flat&logo=springboot&logoColor=green" alt="Spring Boot"> </a>
+    <a href="https://www.java.com/en/"> 
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg" height="80" width="80" alt="Java"> 
+    </a>
+    <a href="https://www.postgresql.org"> 
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg" height="80" width="70" alt="PostgreSQL"> 
+    </a>
+    <a href="https://www.docker.com"> 
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" height="70" width="70" alt="Docker"> 
+    </a>
+    <a href="https://www.java.com/en/"> 
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" height="70" width="70" alt="TypeScript">
+    </a>
+    <a href="https://maven.apache.org"> 
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/maven/maven-original.svg"height="70" width="70" alt="Maven" > 
+    </a>
+    <a href="https://spring.io/projects/spring-boot"> 
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/spring/spring-original.svg" height="70" width="70" alt="Spring"> 
+    </a>
 </p>
 <hr>
 
