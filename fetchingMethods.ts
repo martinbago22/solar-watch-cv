@@ -49,9 +49,20 @@ function isUserNameValid(username: string): boolean {
 
 async function getWeatherInfo() {
 	try {
-		const response = axios.get('/api/weatherforecast/current');
-		console.log(response);
+		const response :APIResponse= axios.get('/api/weatherforecast/current');
+		console.log(response)
 	} catch (e) {
 		console.error(e);
 	}
 }
+type APIResponse = {
+    cityName: string,
+    temperature: number,
+    humidity: number,
+    windSpeed: number,
+    description: string,
+    visibility: number,
+    pictureTakingWarning: string,
+    sunriseTime: string
+    sunsetTime: string
+};
