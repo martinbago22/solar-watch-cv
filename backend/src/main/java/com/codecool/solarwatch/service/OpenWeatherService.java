@@ -192,7 +192,7 @@ public class OpenWeatherService {
     }
 
     public CurrentWeatherInfoDTO getCurrentWeatherInfoDTOFrom(CurrentWeatherResponse currentWeatherResponse, String cityName) {
-        convertUnixUTCToDate(currentWeatherResponse.currentWeatherAPISunriseSunsetTime().sunriseUnixUTC());
+        //convertUnixUTCToDate(currentWeatherResponse.currentWeatherAPISunriseSunsetTime().sunriseUnixUTC());
         return new CurrentWeatherInfoDTO(cityName,
                 convertToCelsius(currentWeatherResponse.mainWeatherInfo().temperature()),
                 currentWeatherResponse.mainWeatherInfo().humidity(),
