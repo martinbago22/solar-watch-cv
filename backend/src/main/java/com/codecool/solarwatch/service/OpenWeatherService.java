@@ -7,14 +7,12 @@ import com.codecool.solarwatch.exception.SunriseSunsetNotFoundException;
 import com.codecool.solarwatch.model.Coordinates;
 import com.codecool.solarwatch.model.SolarResultDetails;
 import com.codecool.solarwatch.model.WeatherReport;
-import com.codecool.solarwatch.model.api_response.current_weather_response.CurrentWeatherDescription;
 import com.codecool.solarwatch.model.api_response.current_weather_response.CurrentWeatherResponse;
 import com.codecool.solarwatch.model.dto.CurrentWeatherInfoDTO;
 import com.codecool.solarwatch.model.entity.City;
 import com.codecool.solarwatch.model.entity.SunriseSunset;
 import com.codecool.solarwatch.repository.CityRepository;
 import com.codecool.solarwatch.repository.SunriseSunsetRepository;
-import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -192,7 +190,7 @@ public class OpenWeatherService {
     }
 
     public CurrentWeatherInfoDTO getCurrentWeatherInfoDTOFrom(CurrentWeatherResponse currentWeatherResponse, String cityName) {
-        //convertUnixUTCToDate(currentWeatherResponse.currentWeatherAPISunriseSunsetTime().sunriseUnixUTC());
+        convertUnixUTCToLocalDateTime(currentWeatherResponse.currentWeatherAPISunriseSunsetTime().sunriseUnixUTC());
         return new CurrentWeatherInfoDTO(cityName,
                 convertToCelsius(currentWeatherResponse.mainWeatherInfo().temperature()),
                 currentWeatherResponse.mainWeatherInfo().humidity(),

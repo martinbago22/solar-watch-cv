@@ -1,10 +1,7 @@
 package com.codecool.solarwatch.util;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 public class Utility {
     public static LocalDate parseToLocalDate(String date) {
@@ -27,11 +24,12 @@ public class Utility {
         return (int) Math.round(kelvin - 273.15);
     }
 
-    /*public static Date convertUnixUTCToDate(String unixUTC) {
+    public static LocalDateTime convertUnixUTCToLocalDateTime(String unixUTC) {
         long unix_seconds = Long.parseLong(unixUTC);
-        Date date = new Date(unix_seconds * 1000L);
-        System.out.println(date);
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss z");
-        return sdf.format(date);
-    }*/
+        Instant instant = Instant.ofEpochMilli(unix_seconds);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"));
+        System.out.println(unixUTC);
+        System.out.println(localDateTime);
+        return localDateTime;
+    }
 }
