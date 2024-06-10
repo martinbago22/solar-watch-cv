@@ -24,5 +24,7 @@ public class WeatherForecastControllerAdvice {
     @ResponseBody
     @ExceptionHandler(InvalidUserNameException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String invalidUserNameExceptionHandler(InvalidUserNameException e) { return e.getMessage(); }
+    public String invalidUserNameExceptionHandler(InvalidUserNameException e) {
+        return e.getMessage();
+    }
 }
