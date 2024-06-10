@@ -20,6 +20,18 @@ const username = ref<string>('');
 const password = ref<string>('');
 getWeatherInfo();
 
+type APIResponse = {
+    cityName: string,
+    temperature: number,
+    humidity: number,
+    windSpeed: number,
+    description: string,
+    visibility: number,
+    pictureTakingWarning: string,
+    sunriseTime: string
+    sunsetTime: string
+};
+
 </script>
 
 <style scoped>

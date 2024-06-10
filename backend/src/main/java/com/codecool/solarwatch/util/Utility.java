@@ -27,11 +27,11 @@ public class Utility {
         return (int) Math.round(kelvin - 273.15);
     }
 
-    public static Date convertUnixUTCToDate(String unixUTC) {
+    /*public static Date convertUnixUTCToDate(String unixUTC) {
         long unix_seconds = Long.parseLong(unixUTC);
         Date date = new Date(unix_seconds * 1000L);
         System.out.println(date);
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss z");
         return sdf.format(date);
-    }
+    }*/
 }
