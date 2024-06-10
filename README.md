@@ -17,16 +17,17 @@
     <a href="https://www.docker.com"> 
         <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" height="70" width="70" alt="Docker"> 
     </a>
-    <a href="https://www.java.com/en/"> 
+    <a href="https://www.typescriptlang.org/"> 
         <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" height="70" width="70" alt="TypeScript">
     </a>
     <a href="https://maven.apache.org"> 
-        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/maven/maven-original.svg"height="70" width="70" alt="Maven" > 
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/maven/maven-original.svg" height="70" width="70" alt="Maven"> 
     </a>
     <a href="https://spring.io/projects/spring-boot"> 
         <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/spring/spring-original.svg" height="70" width="70" alt="Spring"> 
     </a>
 </p>
+
 <hr>
 
 ##  Quick Links
