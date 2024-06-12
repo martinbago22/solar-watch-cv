@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -36,7 +35,7 @@ public class UserController {
         return ResponseEntity.ok(jwt);
     }
     @GetMapping("getAdmin")
-    public ResponseEntity<HttpStatusCode> grantAdmin(@RequestParam(required = true) String userName) {
+    public ResponseEntity<HttpStatusCode> grantAdmin(@RequestParam String userName) {
         this.userService.grantAdminPrivilegesFor(userName);
         return ResponseEntity.ok().build();
     }

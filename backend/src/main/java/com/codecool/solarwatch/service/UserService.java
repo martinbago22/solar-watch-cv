@@ -30,6 +30,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.codecool.solarwatch.model.entity.Role.ROLE_USER;
+
 @Service
 public class UserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
@@ -52,34 +54,42 @@ public class UserService {
         this.jwtUtils = jwtUtils;
     }
 
-    public void addRoleFor(UserEntity user, Role role) {
+    //TODO error handling if user already has existing role to be added.
+    public boolean addRoleFor(UserEntity user, Role role) {
+        LOGGER.error("TEST");
         Set<RoleEntity> oldRoles = user.getRoles();
         RoleEntity roleEntity = getRoleEntityBy(role);
-
-        Set<RoleEntity> copiedRoles = new HashSet<>(oldRoles);
-        copiedRoles.add(roleEntity);
-        user.setRoles(copiedRoles);
-        LOGGER.info(String.format("Successfully added role to user %s%n", user));
-
-        userRepository.save(user);
-        LOGGER.info("Updated user successfully saved to DB");
+        if (!oldRoles.contains(roleEntity)) {
+            Set<RoleEntity> copiedRoles = new HashSet<>(oldRoles);
+            copiedRoles.add(roleEntity);
+            user.setRoles(copiedRoles);
+            userRepository.save(user);
+            LOGGER.info(String.format("ROLE: [%s] has been added to USER: [%s]", role, user));
+            return true;
+        } else {
+            LOGGER.error(String.format("USER: [%s] already has existing ROLE: [%s]", user, role));
+            return false;
+        }
     }
 
     @Transactional
     //TODO handle errors (valid username, no whitespace, check db if user with that name already exists if so throw exception
     public boolean createUser(UsernamePasswordDTO usernamePasswordDTORequest) {
-        if (userNameValidator(usernamePasswordDTORequest.username())) {
-            try {
-                String hashedPassword = encoder.encode(usernamePasswordDTORequest.password());
-                UserEntity newUser = new UserEntity(usernamePasswordDTORequest.username(), hashedPassword);
-                addRoleFor(newUser, Role.ROLE_USER);
+        if (!validateUserName(usernamePasswordDTORequest.username())) {
+            return false;
+        }
+        try {
+            String hashedPassword = encoder.encode(usernamePasswordDTORequest.password());
+            UserEntity newUser = new UserEntity(usernamePasswordDTORequest.username(),
+                    hashedPassword);
+            if (addRoleFor(newUser, ROLE_USER)) {
                 this.userRepository.save(newUser);
                 return true;
-            } catch (RuntimeException e) {
-                LOGGER.error(e.getMessage());
-                return false;
-            }
-        } else return false;
+            } else return false;
+        } catch (RuntimeException e) {
+            LOGGER.error(e.getMessage());
+            return false;
+        }
     }
 
     //TODO mit küldünk itt vissza? String jwtToken? boolean? hol adjuk hozzá a role-t hogy a loginelt user már user roleban van?
@@ -141,11 +151,17 @@ public class UserService {
         return userName.contains(" ");
     }
 
-    private boolean isUserNameValid(String userName) {
-        return !containsSpecialCharacters(userName) && !containsWhiteSpace(userName);
+    private boolean isBetweenTwoAndEightCharacters(String userName) {
+        return userName.length() > 1 && userName.length() < 9;
     }
 
-    private boolean userNameValidator(String username) {
+    private boolean isUserNameValid(String userName) {
+        return !containsSpecialCharacters(userName) &&
+                !containsWhiteSpace(userName) &&
+                isBetweenTwoAndEightCharacters(userName);
+    }
+
+    private boolean validateUserName(String username) {
         boolean userNameAlreadyExists = checkIfUserExists(username);
         boolean isUserNameValid = isUserNameValid(username);
         if (userNameAlreadyExists) {
