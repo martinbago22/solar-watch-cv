@@ -56,6 +56,7 @@ public class UserService {
 
     //TODO error handling if user already has existing role to be added.
     public boolean addRoleFor(UserEntity user, Role role) {
+        LOGGER.error("TEST");
         Set<RoleEntity> oldRoles = user.getRoles();
         RoleEntity roleEntity = getRoleEntityBy(role);
         if (!oldRoles.contains(roleEntity)) {
@@ -74,7 +75,7 @@ public class UserService {
     @Transactional
     //TODO handle errors (valid username, no whitespace, check db if user with that name already exists if so throw exception
     public boolean createUser(UsernamePasswordDTO usernamePasswordDTORequest) {
-        if (!userNameValidator(usernamePasswordDTORequest.username())) {
+        if (!validateUserName(usernamePasswordDTORequest.username())) {
             return false;
         }
         try {
@@ -160,7 +161,7 @@ public class UserService {
                 isBetweenTwoAndEightCharacters(userName);
     }
 
-    private boolean userNameValidator(String username) {
+    private boolean validateUserName(String username) {
         boolean userNameAlreadyExists = checkIfUserExists(username);
         boolean isUserNameValid = isUserNameValid(username);
         if (userNameAlreadyExists) {
