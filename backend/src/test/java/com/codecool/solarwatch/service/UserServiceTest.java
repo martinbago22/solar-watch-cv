@@ -6,8 +6,14 @@ import com.codecool.solarwatch.model.entity.UserEntity;
 import com.codecool.solarwatch.repository.RoleRepository;
 import com.codecool.solarwatch.repository.UserRepository;
 import com.codecool.solarwatch.security.jwt.JwtUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -15,15 +21,23 @@ import java.util.Set;
 
 import static com.codecool.solarwatch.model.entity.Role.ROLE_ADMIN;
 import static com.codecool.solarwatch.model.entity.Role.ROLE_USER;
-
+@ExtendWith(MockitoExtension.class)
 class UserServiceTest {
-    UserRepository userRepository = Mockito.mock(UserRepository.class);
-    RoleRepository repository = Mockito.mock(RoleRepository.class);
-    AuthenticationManager authenticationManager = Mockito.mock(AuthenticationManager.class);
-    PasswordEncoder passwordEncoder = Mockito.mock(PasswordEncoder.class);
-    JwtUtils jwtUtils = Mockito.mock(JwtUtils.class);
-    UserService userService = new UserService(userRepository,
-            repository, authenticationManager, passwordEncoder, jwtUtils);
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private Logger logger;
+    @Mock
+    private RoleRepository repository;
+    @Mock
+    private AuthenticationManager authenticationManager;
+    @Mock
+    private PasswordEncoder passwordEncoder;
+    @Mock
+    private JwtUtils jwtUtils;
+    @InjectMocks
+    private UserService userService;
+
 
     @Test
     void addRoleFor() {

@@ -36,7 +36,7 @@ public class UserController {
         return ResponseEntity.ok(jwt);
     }
     @GetMapping("getAdmin")
-    public ResponseEntity<HttpStatusCode> grantAdmin(@RequestParam(required = true) String userName) {
+    public ResponseEntity<HttpStatusCode> grantAdmin(@RequestParam String userName) {
         this.userService.grantAdminPrivilegesFor(userName);
         return ResponseEntity.ok().build();
     }
