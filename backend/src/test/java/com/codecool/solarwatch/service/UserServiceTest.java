@@ -44,7 +44,9 @@ class UserServiceTest {
     void AddRoleForUserSuccessfullyAddsRequestedRoleToUserWhenProvidedValidParameters() {
         UserEntity user = new UserEntity("John", "doe");
         user.setRoles(Set.of(new RoleEntity(ROLE_USER)));
+
         when(this.roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
+
         assertTrue(this.userService.addRoleFor(user, ROLE_ADMIN));
     }
 
