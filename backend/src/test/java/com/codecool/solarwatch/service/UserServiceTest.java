@@ -19,6 +19,7 @@ import java.util.Set;
 
 import static com.codecool.solarwatch.model.entity.Role.ROLE_ADMIN;
 import static com.codecool.solarwatch.model.entity.Role.ROLE_USER;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -46,8 +47,29 @@ class UserServiceTest {
         user.setRoles(Set.of(new RoleEntity(ROLE_USER)));
 
         when(this.roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
+        this.userService.addRoleFor(user, ROLE_ADMIN);
+        boolean containsRequestedRole = user.getRoles().contains(new RoleEntity(ROLE_ADMIN));
+
+        assertTrue(containsRequestedRole);
+    }
+
+    @Test
+    void AddRoleForUserReturnsTrueWhenProvidedValidParameters() {
+        UserEntity user = new UserEntity("John", "doe");
+        user.setRoles(Set.of(new RoleEntity(ROLE_USER)));
+
+        when(this.roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
 
         assertTrue(this.userService.addRoleFor(user, ROLE_ADMIN));
+    }
+    @Test
+    void addRoleForReturnsFalseWhenUserAlreadyHasProvidedRole() {
+        UserEntity user = new UserEntity("John", "doe");
+        user.setRoles(Set.of(new RoleEntity(ROLE_ADMIN)));
+
+        when(this.roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
+
+        assertFalse(this.userService.addRoleFor(user, ROLE_ADMIN));
     }
 
     @Test
