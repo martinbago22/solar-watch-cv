@@ -1,6 +1,6 @@
 package com.codecool.solarwatch.controller;
 
-import com.codecool.solarwatch.dto.SunriseSunsetDTO;
+import com.codecool.solarwatch.model.dto.SunriseSunsetDTO;
 import com.codecool.solarwatch.model.api_response.current_weather_response.CurrentWeatherResponse;
 import com.codecool.solarwatch.service.OpenWeatherService;
 import org.springframework.beans.factory.annotation.Autowired;
