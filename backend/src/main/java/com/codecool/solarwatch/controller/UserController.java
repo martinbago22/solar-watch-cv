@@ -20,10 +20,10 @@ public class UserController {
 
     //TODO kérdések a status kódokról, response entity, stb.
     @PostMapping("register")
-    public ResponseEntity<HttpStatusCode> addUser(@RequestBody UsernamePasswordDTO newUserRequest) {
+    public ResponseEntity<String> addUser(@RequestBody UsernamePasswordDTO newUserRequest) {
         System.out.println(newUserRequest);
         if (this.userService.createUser(newUserRequest)) {
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            return new ResponseEntity<>(String.format("USER: [%s] created", newUserRequest.username()), HttpStatus.CREATED);
         } else {
             return ResponseEntity.badRequest().build();
         }
