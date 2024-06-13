@@ -16,6 +16,7 @@ import jakarta.validation.ValidatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,7 +26,9 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.UnexpectedRollbackException;
 
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -79,18 +82,7 @@ public class UserService {
         if (!isValidRegisterRequest(usernamePasswordDTORequest)) {
             throw new InvalidUserNameException();
         }
-        try {
-            String hashedPassword = encoder.encode(usernamePasswordDTORequest.password());
-            UserEntity newUser = new UserEntity(usernamePasswordDTORequest.username(),
-                    hashedPassword);
-            if (addRoleFor(newUser, ROLE_USER)) {
-                this.userRepository.save(newUser);
-                return true;
-            } else return false;
-        } catch (RuntimeException e) {
-            LOGGER.error(e.getMessage());
-            return false;
-        }
+        return attemptToCreateUser(usernamePasswordDTORequest);
     }
 
     //TODO mit küldünk itt vissza? String jwtToken? boolean? hol adjuk hozzá a role-t hogy a loginelt user már user roleban van?
@@ -154,5 +146,37 @@ public class UserService {
     private void logViolationMessages(Set<ConstraintViolation<UsernamePasswordDTO>> violations) {
         violations
                 .forEach(violation -> LOGGER.error(violation.getMessage()));
+    }
+
+    private void handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        if (e.getCause() instanceof SQLException sqlEx) {
+            LOGGER.error("SQL error code: {}, state: {}, message: {}",
+                    sqlEx.getErrorCode(), sqlEx.getSQLState(), sqlEx.getMessage());
+        } else {
+            LOGGER.error("Data access error: {}", e.getMessage());
+        }
+    }
+
+    private boolean attemptToCreateUser(UsernamePasswordDTO usernamePasswordDTORequest) {
+        try {
+            String hashedPassword = encoder.encode(usernamePasswordDTORequest.password());
+            UserEntity newUser = new UserEntity(usernamePasswordDTORequest.username(), hashedPassword);
+
+            if (addRoleFor(newUser, ROLE_USER)) {
+                userRepository.save(newUser);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (DataIntegrityViolationException e) {
+            handleDataIntegrityViolationException(e);
+            return false;
+        } catch (UnexpectedRollbackException e) {
+            LOGGER.error("Transaction rollback occurred: {}", e.getMessage());
+            return false;
+        } catch (RuntimeException e) {
+            LOGGER.error("An unexpected error occurred: {}", e.getMessage());
+            return false;
+        }
     }
 }
