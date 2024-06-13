@@ -1,5 +1,6 @@
 package com.codecool.solarwatch.model.dto;
 
+
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 

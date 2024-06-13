@@ -1,7 +1,6 @@
 package com.codecool.solarwatch.service;
 
 import com.codecool.solarwatch.exception.InvalidUserNameException;
-import com.codecool.solarwatch.exception.UserAlreadyExistsException;
 import com.codecool.solarwatch.model.dto.UsernamePasswordDTO;
 import com.codecool.solarwatch.model.entity.Role;
 import com.codecool.solarwatch.model.entity.RoleEntity;
@@ -10,6 +9,10 @@ import com.codecool.solarwatch.repository.RoleRepository;
 import com.codecool.solarwatch.repository.UserRepository;
 import com.codecool.solarwatch.security.jwt.JwtUtils;
 import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.codecool.solarwatch.model.entity.Role.ROLE_USER;
 
@@ -75,8 +76,8 @@ public class UserService {
     @Transactional
     //TODO handle errors (valid username, no whitespace, check db if user with that name already exists if so throw exception
     public boolean createUser(UsernamePasswordDTO usernamePasswordDTORequest) {
-        if (!validateUserName(usernamePasswordDTORequest.username())) {
-            return false;
+        if (!isValidRegisterRequest(usernamePasswordDTORequest)) {
+            throw new InvalidUserNameException();
         }
         try {
             String hashedPassword = encoder.encode(usernamePasswordDTORequest.password());
@@ -140,34 +141,18 @@ public class UserService {
         // TODO proper error handling instead of RuntimeException
     }
 
-    private boolean containsSpecialCharacters(String userName) {
-        Pattern p = Pattern.compile(
-                "[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
-        Matcher m = p.matcher(userName);
-        return m.find();
-    }
-
-    private boolean containsWhiteSpace(String userName) {
-        return userName.contains(" ");
-    }
-
-    private boolean isBetweenTwoAndEightCharacters(String userName) {
-        return userName.length() > 1 && userName.length() < 9;
-    }
-
-    private boolean isUserNameValid(String userName) {
-        return !containsSpecialCharacters(userName) &&
-                !containsWhiteSpace(userName) &&
-                isBetweenTwoAndEightCharacters(userName);
-    }
-
-    private boolean validateUserName(String username) {
-        boolean userNameAlreadyExists = checkIfUserExists(username);
-        boolean isUserNameValid = isUserNameValid(username);
-        if (userNameAlreadyExists) {
-            throw new UserAlreadyExistsException(username);
-        } else if (!isUserNameValid) {
-            throw new InvalidUserNameException();
+    private boolean isValidRegisterRequest(UsernamePasswordDTO usernamePasswordDTO) {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        Set<ConstraintViolation<UsernamePasswordDTO>> violations = validator.validate(usernamePasswordDTO);
+        if (!violations.isEmpty()) {
+            logViolationMessages(violations);
+            return false;
         } else return true;
+    }
+
+    private void logViolationMessages(Set<ConstraintViolation<UsernamePasswordDTO>> violations) {
+        violations
+                .forEach(violation -> LOGGER.error(violation.getMessage()));
     }
 }
