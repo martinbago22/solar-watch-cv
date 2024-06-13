@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.codecool.solarwatch.model.entity.Role.ROLE_ADMIN;
 import static com.codecool.solarwatch.model.entity.Role.ROLE_USER;
 
 @Service
@@ -63,10 +64,10 @@ public class UserService {
     public boolean addRoleFor(UserEntity user, Role role) {
         LOGGER.error("TEST");
         Set<RoleEntity> oldRoles = user.getRoles();
-        RoleEntity roleEntity = getRoleEntityBy(role);
-        if (!oldRoles.contains(roleEntity)) {
+        RoleEntity roleToBeAdded = getRoleEntityBy(role);
+        if (!oldRoles.contains(roleToBeAdded)) {
             Set<RoleEntity> copiedRoles = new HashSet<>(oldRoles);
-            copiedRoles.add(roleEntity);
+            copiedRoles.add(roleToBeAdded);
             user.setRoles(copiedRoles);
             userRepository.save(user);
             LOGGER.info(String.format("ROLE: [%s] has been added to USER: [%s]", role, user));
@@ -78,7 +79,6 @@ public class UserService {
     }
 
     @Transactional
-    //TODO handle errors (valid username, no whitespace, check db if user with that name already exists if so throw exception
     public boolean createUser(UsernamePasswordDTO usernamePasswordDTORequest) {
         if (!isValidRegisterRequest(usernamePasswordDTORequest)) {
             throw new InvalidUserNameException();
@@ -123,7 +123,7 @@ public class UserService {
     @Transactional
     public void grantAdminPrivilegesFor(String userName) {
         UserEntity user = getUserBy(userName);
-        addRoleFor(user, Role.ROLE_ADMIN);
+        addRoleFor(user, ROLE_ADMIN);
         LOGGER.info(String.format("Admin privileges granted for user %s%n", user.getUsername()));
     }
 

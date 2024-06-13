@@ -1,5 +1,6 @@
 package com.codecool.solarwatch.model.entity;
 
+import com.codecool.solarwatch.model.dto.UsernamePasswordDTO;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -24,6 +25,11 @@ public class UserEntity {
     public UserEntity(String username, String password) {
         this.username = username;
         this.password = password;
+        this.roles = new HashSet<>();
+    }
+    public UserEntity(UsernamePasswordDTO usernamePasswordDTO) {
+        this.username = usernamePasswordDTO.username();
+        this.password = usernamePasswordDTO.password();
         this.roles = new HashSet<>();
     }
 
