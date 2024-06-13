@@ -21,19 +21,19 @@ public class UserController {
     //TODO kérdések a status kódokról, response entity, stb.
     @PostMapping("register")
     public ResponseEntity<String> addUser(@RequestBody UsernamePasswordDTO newUserRequest) {
-        System.out.println(newUserRequest);
-        if (this.userService.createUser(newUserRequest)) {
-            return new ResponseEntity<>(String.format("USER: [%s] created", newUserRequest.username()), HttpStatus.CREATED);
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
+        return this.userService.createUser(newUserRequest) ?
+                new ResponseEntity<>(String.format("USER: [%s] created", newUserRequest.username()),
+                        HttpStatus.CREATED) :
+                ResponseEntity.badRequest().build();
     }
+
     // TODO itt mit kell visszaküldeni? jwt string? hogyan köti össze a responseból kapott bármit a kliens böngészője?
     @PostMapping("login")
     public ResponseEntity<String> login(@RequestBody UsernamePasswordDTO userRequest) {
         String jwt = this.userService.login(userRequest);
         return ResponseEntity.ok(jwt);
     }
+
     @GetMapping("getAdmin")
     public ResponseEntity<HttpStatusCode> grantAdmin(@RequestParam String userName) {
         this.userService.grantAdminPrivilegesFor(userName);
