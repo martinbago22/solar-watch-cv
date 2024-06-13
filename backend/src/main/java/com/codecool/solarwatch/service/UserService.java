@@ -1,6 +1,7 @@
 package com.codecool.solarwatch.service;
 
 import com.codecool.solarwatch.exception.InvalidUserNameException;
+import com.codecool.solarwatch.exception.UserAlreadyExistsException;
 import com.codecool.solarwatch.model.dto.UsernamePasswordDTO;
 import com.codecool.solarwatch.model.entity.Role;
 import com.codecool.solarwatch.model.entity.RoleEntity;
@@ -114,7 +115,7 @@ public class UserService {
                         -> new UsernameNotFoundException(String.format("Couldn't find user named [ %s ]", userName)));
     }
 
-    private boolean checkIfUserExists(String userName) {
+    private boolean userAlreadyExists(String userName) {
         Optional<UserEntity> searchedUser = this.userRepository.findUserEntityByUsername(userName);
         return searchedUser.isPresent();
     }
@@ -158,25 +159,31 @@ public class UserService {
     }
 
     private boolean attemptToCreateUser(UsernamePasswordDTO usernamePasswordDTORequest) {
-        try {
-            String hashedPassword = encoder.encode(usernamePasswordDTORequest.password());
-            UserEntity newUser = new UserEntity(usernamePasswordDTORequest.username(), hashedPassword);
+        if (!userAlreadyExists(usernamePasswordDTORequest.username())) {
+            try {
+                String hashedPassword = encoder.encode(usernamePasswordDTORequest.password());
+                UserEntity newUser = new UserEntity(usernamePasswordDTORequest.username(), hashedPassword);
 
-            if (addRoleFor(newUser, ROLE_USER)) {
-                userRepository.save(newUser);
-                return true;
-            } else {
+                if (addRoleFor(newUser, ROLE_USER)) {
+                    userRepository.save(newUser);
+                    LOGGER.info("USER: [{}] saved to database", newUser.getUsername());
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (DataIntegrityViolationException e) {
+                handleDataIntegrityViolationException(e);
+                return false;
+            } catch (UnexpectedRollbackException e) {
+                LOGGER.error("Transaction rollback occurred: {}", e.getMessage());
+                return false;
+            } catch (RuntimeException e) {
+                LOGGER.error("An unexpected error occurred: {}", e.getMessage());
                 return false;
             }
-        } catch (DataIntegrityViolationException e) {
-            handleDataIntegrityViolationException(e);
-            return false;
-        } catch (UnexpectedRollbackException e) {
-            LOGGER.error("Transaction rollback occurred: {}", e.getMessage());
-            return false;
-        } catch (RuntimeException e) {
-            LOGGER.error("An unexpected error occurred: {}", e.getMessage());
-            return false;
+        } else {
+            LOGGER.error("Username {} is already in use", usernamePasswordDTORequest.username());
+            throw new UserAlreadyExistsException(usernamePasswordDTORequest.username());
         }
     }
 }
