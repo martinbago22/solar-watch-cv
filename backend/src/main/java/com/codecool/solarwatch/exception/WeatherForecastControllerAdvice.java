@@ -42,4 +42,10 @@ public class WeatherForecastControllerAdvice {
     public String dataIntegrityViolationHandler(DataIntegrityViolationException e) {
         return e.getMessage();
     }
+    @ResponseBody
+    @ExceptionHandler(InvalidDateException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String invalidDateExceptionHandler(InvalidDateException e) {
+        return e.getMessage();
+    }
 }
