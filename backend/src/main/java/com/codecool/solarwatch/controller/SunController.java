@@ -1,5 +1,6 @@
 package com.codecool.solarwatch.controller;
 
+import com.codecool.solarwatch.model.dto.CurrentWeatherInfoDTO;
 import com.codecool.solarwatch.model.dto.SunriseSunsetDTO;
 import com.codecool.solarwatch.model.api_response.current_weather_response.CurrentWeatherResponse;
 import com.codecool.solarwatch.service.OpenWeatherService;
@@ -20,13 +21,14 @@ public class SunController {
 
     //TODO error handling without ? wildcard
     @GetMapping("/suninfo")
-    public ResponseEntity<?> getSunReport(@RequestParam(required = false) String date, @RequestParam(defaultValue = "Budapest") String city) {
+    public ResponseEntity<SunriseSunsetDTO> getSunReport(@RequestParam(required = false) String date, @RequestParam(defaultValue = "Budapest") String city) {
+        System.out.println(date);
         return ResponseEntity.ok(new SunriseSunsetDTO(openWeatherService.getSunriseSunset(city, date)));
 
     }
 
     @GetMapping("/current")
-    public ResponseEntity<?> getCurrentWeatherInfoFrom(@RequestParam(defaultValue = "Budapest") String city) {
+    public ResponseEntity<CurrentWeatherInfoDTO> getCurrentWeatherInfoFrom(@RequestParam(defaultValue = "Budapest") String city) {
         CurrentWeatherResponse currentWeatherDetailsResponse =
                 this.openWeatherService.getCurrentWeatherResponseFor(city);
         return ResponseEntity.ok(this.openWeatherService.getCurrentWeatherInfoDTOFrom(currentWeatherDetailsResponse, city));

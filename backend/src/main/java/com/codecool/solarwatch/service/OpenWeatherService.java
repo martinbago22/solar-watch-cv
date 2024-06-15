@@ -62,28 +62,29 @@ public class OpenWeatherService {
     public SunriseSunset getSunriseSunset(String cityName, String date) {
         SunriseSunset sunriseSunset;
         LocalDate parsedDate = LocalDate.now();
-        if (date != null) {
-            parsedDate = parseToLocalDate(date);
-        }
-        City city;
-        try {
-            city = getCityByName(cityName);
-        } catch (NotSupportedCityException e) {
-            city = createCityEntityIfNotInDatabase(cityName);
-        }
-        try {
-            sunriseSunset = getSunriseSunsetByCityAndDate(city, parsedDate);
-        } catch (SunriseSunsetNotFoundException e) {
-            Coordinates coordinates = new Coordinates(city.getLatitude(),
-                    city.getLongitude(),
-                    city.getCountry(),
-                    city.getState());
-            SolarResultDetails solarResultDetails = getSolarResultDetails(coordinates, date);
-            sunriseSunset = new SunriseSunset(parsedDate,
-                    converToLocalTime(solarResultDetails.sunrise()),
-                    converToLocalTime(solarResultDetails.sunset()),
-                    city);
-            sunriseSunset = this.sunriseSunsetRepository.save(sunriseSunset);
+        if (isDateProvided(date) && isDateCorrectFormat(date)) {
+            City city;
+            try {
+                city = getCityByName(cityName);
+            } catch (NotSupportedCityException e) {
+                city = createCityEntityIfNotInDatabase(cityName);
+            }
+            try {
+                sunriseSunset = getSunriseSunsetByCityAndDate(city, parsedDate);
+            } catch (SunriseSunsetNotFoundException e) {
+                Coordinates coordinates = new Coordinates(city.getLatitude(),
+                        city.getLongitude(),
+                        city.getCountry(),
+                        city.getState());
+                SolarResultDetails solarResultDetails = getSolarResultDetails(coordinates, date);
+                sunriseSunset = new SunriseSunset(parsedDate,
+                        converToLocalTime(solarResultDetails.sunrise()),
+                        converToLocalTime(solarResultDetails.sunset()),
+                        city);
+                sunriseSunset = this.sunriseSunsetRepository.save(sunriseSunset);
+            }
+        } else {
+            throw new InvalidDateException();
         }
         return sunriseSunset;
     }
@@ -201,11 +202,13 @@ public class OpenWeatherService {
                 "asd",
                 "qwe");
     }
+
     private String provideWarningMessageAboutCloudyWeather(CurrentWeatherResponse currentWeatherResponse) {
         boolean isCloudyWeather = isCloudyWeather(currentWeatherResponse);
         return isCloudyWeather ? "Weather seems to be cloudy and not ideal for taking pictures" :
                 "Weather seems to be ideal for taking pictures";
     }
+
     private boolean isCloudyWeather(CurrentWeatherResponse currentWeatherResponse) {
         Pattern p = Pattern.compile("cloud", Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher(currentWeatherResponse.currentWeatherDescription()[0].description());
