@@ -60,15 +60,9 @@ public class OpenWeatherService {
     }
 
     public SunriseSunset getSunriseSunset(String cityName, String date) {
-        SunriseSunset sunriseSunset;
         LocalDate parsedDate = handleDateParameter(date);
         City city = getCityFromDatabaseOrFetch(cityName);
-        try {
-            sunriseSunset = getSunriseSunsetFromDataBaseOrFetch(city, parsedDate);
-        } catch (SunriseSunsetNotFoundException e) {
-            sunriseSunset = getSunriseSunsetFromDataBaseOrFetch(city, parsedDate);
-        }
-        return sunriseSunset;
+        return getSunriseSunsetFromDataBaseOrFetch(city, parsedDate);
     }
 
     private SunriseSunset getSunriseSunsetFromDataBaseOrFetch(City city, LocalDate date) {
