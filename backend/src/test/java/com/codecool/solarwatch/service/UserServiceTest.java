@@ -1,5 +1,6 @@
 package com.codecool.solarwatch.service;
 
+import com.codecool.solarwatch.exception.UserAlreadyExistsException;
 import com.codecool.solarwatch.model.dto.UsernamePasswordDTO;
 import com.codecool.solarwatch.model.entity.RoleEntity;
 import com.codecool.solarwatch.model.entity.UserEntity;
@@ -103,6 +104,16 @@ class UserServiceTest {
 
         assertTrue(created);
     }
+    @Test
+    void createUserThrowsUsernameIsAlreadyExistsExceptionWhenProvidedUserNameAlreadyExists() {
+        UsernamePasswordDTO usernamePasswordDTO = new UsernamePasswordDTO("John", "doe");
+        UserEntity alreadyExistingUser = new UserEntity("John", "abc");
+
+        when(this.userRepository.findUserEntityByUsername(usernamePasswordDTO.username()))
+                .thenReturn(Optional.of(alreadyExistingUser));
+
+        assertThrows(UserAlreadyExistsException.class, () -> this.userService.createUser(usernamePasswordDTO));
+    }
 
     @Test
     void login() {
@@ -112,6 +123,6 @@ class UserServiceTest {
     void grantAdminPrivilegesForGrantsAdminRoleForWhenProvidedValidUsername() {
         String username = "john";
         UserEntity user = new UserEntity(username, "doe");
-
     }
+
 }
