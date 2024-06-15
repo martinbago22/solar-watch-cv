@@ -77,9 +77,6 @@ class UserServiceTest {
     @Test
     void addRoleForThrowsRuntimeExceptionWhenProvidedNullAsRole() {
         UserEntity user = new UserEntity("John", "doe");
-        user.setRoles(Set.of(new RoleEntity(ROLE_USER)));
-
-        when(this.roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
 
         assertThrows(RuntimeException.class, () -> this.userService.addRoleFor(user, null));
     }
