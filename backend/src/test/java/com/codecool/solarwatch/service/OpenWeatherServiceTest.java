@@ -1,5 +1,6 @@
 package com.codecool.solarwatch.service;
 
+import com.codecool.solarwatch.exception.InvalidDateException;
 import com.codecool.solarwatch.repository.CityRepository;
 import com.codecool.solarwatch.repository.SunriseSunsetRepository;
 import org.junit.jupiter.api.Test;
@@ -10,8 +11,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.function.client.WebClient;
-
 import static org.junit.jupiter.api.Assertions.*;
+
 @ExtendWith(MockitoExtension.class)
 class OpenWeatherServiceTest {
     private static final String API = "https://api.sunrise-sunset.org/json?";
@@ -26,6 +27,10 @@ class OpenWeatherServiceTest {
     private GeoCodeService geoCodeService;
     @InjectMocks
     OpenWeatherService openWeatherService;
+
     @Test
-    void asd(){}
+    void getSunriseSunsetThrowsInvalidDateExceptionWhenProvidedInvalidDateParameter() {
+        assertThrows(InvalidDateException.class,
+                () -> this.openWeatherService.getSunriseSunset("asd", "asd"));
+    }
 }

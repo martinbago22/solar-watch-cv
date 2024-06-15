@@ -61,32 +61,56 @@ public class OpenWeatherService {
 
     public SunriseSunset getSunriseSunset(String cityName, String date) {
         SunriseSunset sunriseSunset;
-        LocalDate parsedDate = LocalDate.now();
-        if (isDateProvided(date) && isDateCorrectFormat(date)) {
-            City city;
-            try {
-                city = getCityByName(cityName);
-            } catch (NotSupportedCityException e) {
-                city = createCityEntityIfNotInDatabase(cityName);
-            }
-            try {
-                sunriseSunset = getSunriseSunsetByCityAndDate(city, parsedDate);
-            } catch (SunriseSunsetNotFoundException e) {
-                Coordinates coordinates = new Coordinates(city.getLatitude(),
-                        city.getLongitude(),
-                        city.getCountry(),
-                        city.getState());
-                SolarResultDetails solarResultDetails = getSolarResultDetails(coordinates, date);
-                sunriseSunset = new SunriseSunset(parsedDate,
-                        converToLocalTime(solarResultDetails.sunrise()),
-                        converToLocalTime(solarResultDetails.sunset()),
-                        city);
-                sunriseSunset = this.sunriseSunsetRepository.save(sunriseSunset);
-            }
-        } else {
-            throw new InvalidDateException();
+        LocalDate parsedDate = handleDateParameter(date);
+        City city = getCityFromDatabaseOrFetch(cityName);
+        try {
+            sunriseSunset = getSunriseSunsetFromDataBaseOrFetch(city, parsedDate);
+        } catch (SunriseSunsetNotFoundException e) {
+            sunriseSunset = getSunriseSunsetFromDataBaseOrFetch(city, parsedDate);
         }
         return sunriseSunset;
+    }
+
+    private SunriseSunset getSunriseSunsetFromDataBaseOrFetch(City city, LocalDate date) {
+        SunriseSunset sunriseSunset;
+        try {
+            sunriseSunset = getSunriseSunsetByCityAndDate(city, date);
+        } catch (SunriseSunsetNotFoundException e) {
+            Coordinates coordinates = new Coordinates(city.getLatitude(),
+                    city.getLongitude(),
+                    city.getCountry(),
+                    city.getState());
+            SolarResultDetails solarResultDetails = getSolarResultDetails(coordinates, date.toString());
+            sunriseSunset = new SunriseSunset(date,
+                    converToLocalTime(solarResultDetails.sunrise()),
+                    converToLocalTime(solarResultDetails.sunset()),
+                    city);
+            sunriseSunset = this.sunriseSunsetRepository.save(sunriseSunset);
+        }
+        return sunriseSunset;
+    }
+
+    private LocalDate handleDateParameter(String date) {
+        if (date != null) {
+            LocalDate requestedDate;
+            try {
+                requestedDate = parseToLocalDate(date);
+            } catch (DateTimeParseException e) {
+                throw new InvalidDateException();
+            }
+            return requestedDate;
+        } else return LocalDate.now();
+
+    }
+
+    private City getCityFromDatabaseOrFetch(String cityName) {
+        City city;
+        try {
+            city = getCityByName(cityName);
+        } catch (NotSupportedCityException e) {
+            city = createCityEntityIfNotInDatabase(cityName);
+        }
+        return city;
     }
 
 
