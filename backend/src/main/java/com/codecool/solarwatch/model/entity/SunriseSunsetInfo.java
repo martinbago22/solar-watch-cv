@@ -7,7 +7,7 @@ import java.time.LocalTime;
 
 @Entity
 @Table(name = "sunrise_sunset_info")
-public class SunriseSunset {
+public class SunriseSunsetInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "sunrise_sunset_id")
@@ -24,14 +24,14 @@ public class SunriseSunset {
     @JoinColumn(name = "city_id")
     private City city;
 
-    public SunriseSunset(LocalDate date, LocalTime sunriseTime, LocalTime sunsetTime, City city) {
+    public SunriseSunsetInfo(LocalDate date, LocalTime sunriseTime, LocalTime sunsetTime, City city) {
         this.date = date;
         this.sunriseTime = sunriseTime;
         this.sunsetTime = sunsetTime;
         this.city = city;
     }
 
-    public SunriseSunset() {
+    public SunriseSunsetInfo() {
     }
 
     public LocalDate getDate() {

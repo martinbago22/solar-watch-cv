@@ -1,12 +1,14 @@
 package com.codecool.solarwatch.model.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 
 import java.util.List;
 import java.util.Objects;
 
 
 @Entity
+@Builder
 @Table(name = "cities")
 public class City {
     @Id
@@ -20,7 +22,7 @@ public class City {
     private String state;
     private String country;
     @OneToMany(mappedBy = "city", cascade = CascadeType.REMOVE)
-    private List<SunriseSunset> sunriseSunsetList;
+    private List<SunriseSunsetInfo> sunriseSunsetInfoList;
 
     public City(String name, double longitude, double latitude, String state, String country) {
         this.name = name;
@@ -87,12 +89,12 @@ public class City {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         City city = (City) o;
-        return id == city.id && Double.compare(longitude, city.longitude) == 0 && Double.compare(latitude, city.latitude) == 0 && Objects.equals(name, city.name) && Objects.equals(state, city.state) && Objects.equals(country, city.country) && Objects.equals(sunriseSunsetList, city.sunriseSunsetList);
+        return id == city.id && Double.compare(longitude, city.longitude) == 0 && Double.compare(latitude, city.latitude) == 0 && Objects.equals(name, city.name) && Objects.equals(state, city.state) && Objects.equals(country, city.country) && Objects.equals(sunriseSunsetInfoList, city.sunriseSunsetInfoList);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, longitude, latitude, state, country, sunriseSunsetList);
+        return Objects.hash(id, name, longitude, latitude, state, country, sunriseSunsetInfoList);
     }
 
 }
