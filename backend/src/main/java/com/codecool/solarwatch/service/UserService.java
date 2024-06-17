@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -74,7 +75,7 @@ public class UserService {
     }
 
     @Transactional
-    public boolean createUser(UsernamePasswordDTO usernamePasswordDTORequest) {
+    public boolean createUser(@NonNull UsernamePasswordDTO usernamePasswordDTORequest) {
         if (!isValidRegisterRequest(usernamePasswordDTORequest)) {
             throw new InvalidUserNameException();
         }
@@ -103,7 +104,8 @@ public class UserService {
     }
 
     private UserEntity getUserBy(String userName) {
-        return this.userRepository.findUserEntityByUsername(userName).orElseThrow(() -> new UsernameNotFoundException(String.format("Couldn't find user named [ %s ]", userName)));
+        return this.userRepository.findUserEntityByUsername(userName)
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("Couldn't find user named [ %s ]", userName)));
     }
 
     private boolean userAlreadyExists(String userName) {
@@ -112,10 +114,10 @@ public class UserService {
     }
 
     @Transactional
-    public void grantAdminPrivilegesFor(String userName) {
+    public boolean grantAdminPrivilegesFor(String userName) {
         UserEntity user = getUserBy(userName);
-        addRoleFor(user, ROLE_ADMIN);
         LOGGER.info(String.format("Admin privileges granted for user %s%n", user.getUsername()));
+        return addRoleFor(user, ROLE_ADMIN);
     }
 
     private RoleEntity getRoleEntityBy(Role role) {
@@ -123,7 +125,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Role not found"));
     }
 
-    private boolean isValidRegisterRequest(UsernamePasswordDTO usernamePasswordDTO) {
+    private boolean isValidRegisterRequest(@NonNull UsernamePasswordDTO usernamePasswordDTO) {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
         Set<ConstraintViolation<UsernamePasswordDTO>> violations = validator.validate(usernamePasswordDTO);
