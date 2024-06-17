@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -48,11 +49,7 @@ public class UserService {
     private final JwtUtils jwtUtils;
 
     @Autowired
-    public UserService(UserRepository userRepository,
-                       RoleRepository roleRepository,
-                       AuthenticationManager authenticationManager,
-                       PasswordEncoder encoder,
-                       JwtUtils jwtUtils) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, AuthenticationManager authenticationManager, PasswordEncoder encoder, JwtUtils jwtUtils) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.authenticationManager = authenticationManager;
@@ -60,9 +57,8 @@ public class UserService {
         this.jwtUtils = jwtUtils;
     }
 
-    //TODO error handling if user already has existing role to be added.
+    @Transactional
     public boolean addRoleFor(UserEntity user, Role role) {
-        LOGGER.error("TEST");
         Set<RoleEntity> oldRoles = user.getRoles();
         RoleEntity roleToBeAdded = getRoleEntityBy(role);
         if (!oldRoles.contains(roleToBeAdded)) {
@@ -79,7 +75,7 @@ public class UserService {
     }
 
     @Transactional
-    public boolean createUser(UsernamePasswordDTO usernamePasswordDTORequest) {
+    public boolean createUser(@NonNull UsernamePasswordDTO usernamePasswordDTORequest) {
         if (!isValidRegisterRequest(usernamePasswordDTORequest)) {
             throw new InvalidUserNameException();
         }
@@ -92,9 +88,7 @@ public class UserService {
         String jwt = null;
         try {
             //TODO kérdezni  ez a rész mit csinál?
-            Authentication authentication = authenticationManager.authenticate
-                    (new UsernamePasswordAuthenticationToken
-                            (usernamePasswordDTORequest.username(), usernamePasswordDTORequest.password()));
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(usernamePasswordDTORequest.username(), usernamePasswordDTORequest.password()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             jwt = jwtUtils.generateJwtToken(authentication);
@@ -111,8 +105,7 @@ public class UserService {
 
     private UserEntity getUserBy(String userName) {
         return this.userRepository.findUserEntityByUsername(userName)
-                .orElseThrow(()
-                        -> new UsernameNotFoundException(String.format("Couldn't find user named [ %s ]", userName)));
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("Couldn't find user named [ %s ]", userName)));
     }
 
     private boolean userAlreadyExists(String userName) {
@@ -121,20 +114,18 @@ public class UserService {
     }
 
     @Transactional
-    public void grantAdminPrivilegesFor(String userName) {
+    public boolean grantAdminPrivilegesFor(String userName) {
         UserEntity user = getUserBy(userName);
-        addRoleFor(user, ROLE_ADMIN);
         LOGGER.info(String.format("Admin privileges granted for user %s%n", user.getUsername()));
+        return addRoleFor(user, ROLE_ADMIN);
     }
 
     private RoleEntity getRoleEntityBy(Role role) {
         return this.roleRepository.getRoleEntityByRole(role)
-                .orElseThrow(()
-                        -> new RuntimeException("Role not found"));
-        // TODO proper error handling instead of RuntimeException
+                .orElseThrow(() -> new RuntimeException("Role not found"));
     }
 
-    private boolean isValidRegisterRequest(UsernamePasswordDTO usernamePasswordDTO) {
+    private boolean isValidRegisterRequest(@NonNull UsernamePasswordDTO usernamePasswordDTO) {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
         Set<ConstraintViolation<UsernamePasswordDTO>> violations = validator.validate(usernamePasswordDTO);
@@ -145,14 +136,12 @@ public class UserService {
     }
 
     private void logViolationMessages(Set<ConstraintViolation<UsernamePasswordDTO>> violations) {
-        violations
-                .forEach(violation -> LOGGER.error(violation.getMessage()));
+        violations.forEach(violation -> LOGGER.error(violation.getMessage()));
     }
 
     private void handleDataIntegrityViolationException(DataIntegrityViolationException e) {
         if (e.getCause() instanceof SQLException sqlEx) {
-            LOGGER.error("SQL error code: {}, state: {}, message: {}",
-                    sqlEx.getErrorCode(), sqlEx.getSQLState(), sqlEx.getMessage());
+            LOGGER.error("SQL error code: {}, state: {}, message: {}", sqlEx.getErrorCode(), sqlEx.getSQLState(), sqlEx.getMessage());
         } else {
             LOGGER.error("Data access error: {}", e.getMessage());
         }
@@ -163,23 +152,21 @@ public class UserService {
             try {
                 String hashedPassword = encoder.encode(usernamePasswordDTORequest.password());
                 UserEntity newUser = new UserEntity(usernamePasswordDTORequest.username(), hashedPassword);
+                newUser.setRoles(Set.of(new RoleEntity(ROLE_USER)));
 
-                if (addRoleFor(newUser, ROLE_USER)) {
-                    userRepository.save(newUser);
-                    LOGGER.info("USER: [{}] saved to database", newUser.getUsername());
-                    return true;
-                } else {
-                    return false;
-                }
+                userRepository.save(newUser);
+                LOGGER.info("USER: [{}] saved to database", newUser.getUsername());
+                return true;
+
             } catch (DataIntegrityViolationException e) {
                 handleDataIntegrityViolationException(e);
                 return false;
             } catch (UnexpectedRollbackException e) {
                 LOGGER.error("Transaction rollback occurred: {}", e.getMessage());
-                return false;
+                throw new UnexpectedRollbackException(e.getMessage());
             } catch (RuntimeException e) {
                 LOGGER.error("An unexpected error occurred: {}", e.getMessage());
-                return false;
+                throw new RuntimeException(e.getMessage());
             }
         } else {
             LOGGER.error("Username {} is already in use", usernamePasswordDTORequest.username());

@@ -1,8 +1,9 @@
 package com.codecool.solarwatch.service;
 
 import com.codecool.solarwatch.exception.InvalidDateException;
+import com.codecool.solarwatch.exception.NotSupportedCityException;
 import com.codecool.solarwatch.model.entity.City;
-import com.codecool.solarwatch.model.entity.SunriseSunset;
+import com.codecool.solarwatch.model.entity.SunriseSunsetInfo;
 import com.codecool.solarwatch.repository.CityRepository;
 import com.codecool.solarwatch.repository.SunriseSunsetRepository;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OpenWeatherServiceTest {
@@ -38,21 +39,21 @@ class OpenWeatherServiceTest {
     OpenWeatherService openWeatherService;
 
     @Test
-    void getSunriseSunsetThrowsInvalidDateExceptionWhenProvidedInvalidDateParameter() {
+    void getSunriseSunsetInfo_ThrowsInvalidDateException_WhenProvidedInvalidDateParameter() {
         assertThrows(InvalidDateException.class,
-                () -> this.openWeatherService.getSunriseSunset("asd", "asd"));
+                () -> this.openWeatherService.getSunriseSunsetInfo("asd", "asd"));
     }
 
     @Test
-    void getSunriseSunsetGetsSunriseSunsetInfoOfCurrentDateWhenNoDateParameterProvided() {
+    void getSunriseSunsetInfo_GetsSunriseSunsetInfoOfCurrentDate_WhenNoDateParameterProvided() {
         String cityName = "Budapest";
-        City mockCity = new City("Budapest",
+        City mockCity = new City(cityName,
                 12,
                 12,
                 "Asd",
                 "asd");
         LocalDate dateWhenNotProvided = LocalDate.now();
-        SunriseSunset expectedSunriseSunset = new SunriseSunset(dateWhenNotProvided,
+        SunriseSunsetInfo expectedSunriseSunsetInfo = new SunriseSunsetInfo(dateWhenNotProvided,
                 LocalTime.now(),
                 LocalTime.now(),
                 mockCity);
@@ -60,9 +61,51 @@ class OpenWeatherServiceTest {
         when(this.cityRepository.findByName(cityName))
                 .thenReturn(Optional.of(mockCity));
         when(this.sunriseSunsetRepository.getSunriseSunsetByCityAndDate(mockCity, dateWhenNotProvided))
-                .thenReturn(Optional.of(expectedSunriseSunset));
-        SunriseSunset actualSunriseSunset = this.openWeatherService.getSunriseSunset(cityName, null);
+                .thenReturn(Optional.of(expectedSunriseSunsetInfo));
+        SunriseSunsetInfo actualSunriseSunsetInfo = this.openWeatherService.getSunriseSunsetInfo(cityName, null);
 
-        assertEquals(expectedSunriseSunset, actualSunriseSunset);
+        assertEquals(expectedSunriseSunsetInfo, actualSunriseSunsetInfo);
+    }
+
+    @Test
+    void getSunriseSunsetInfo_GetsSunriseSunsetOfProvidedDate_WhenProvidedValidParameters() {
+        String cityName = "Budapest";
+        LocalDate requestedDate = LocalDate.of(1996, 9, 17);
+        City mockCity = new City(cityName,
+                12,
+                12,
+                "Alabama",
+                "USA");
+        SunriseSunsetInfo expectedSunriseSunsetInfo = new SunriseSunsetInfo(requestedDate,
+                LocalTime.now(),
+                LocalTime.now(),
+                mockCity);
+
+        when(this.cityRepository.findByName(cityName))
+                .thenReturn(Optional.of(mockCity));
+        when(this.sunriseSunsetRepository.getSunriseSunsetByCityAndDate(mockCity, requestedDate))
+                .thenReturn(Optional.of(expectedSunriseSunsetInfo));
+
+        SunriseSunsetInfo actual = this.openWeatherService.getSunriseSunsetInfo(cityName, "1996-09-17");
+
+        assertEquals(expectedSunriseSunsetInfo, actual);
+    }
+
+    @Test
+    void getSunriseSunsetInfo_ThrowsInvalidCityException_WhenProvidedInvalidCityName() {
+        when(this.cityRepository.findByName("asd")).thenThrow(new NotSupportedCityException("asd"));
+
+        assertThrows(NotSupportedCityException.class,
+                () -> this.openWeatherService.getSunriseSunsetInfo("asd", "2024-06-16"));
+    }
+    @Test
+    void deleteCityByName_DeletesRequestedCity_WhenItExistsInDatabase() {
+        City mockCity = mock(City.class);
+        mockCity.setName("Budapest");
+        this.cityRepository.save(mockCity);
+
+        when(this.cityRepository.findByName(mockCity.getName()))
+                .thenReturn(Optional.of(mockCity));
+
     }
 }

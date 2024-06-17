@@ -1,12 +1,15 @@
 package com.codecool.solarwatch.service;
 
+import com.codecool.solarwatch.exception.InvalidUserNameException;
 import com.codecool.solarwatch.exception.UserAlreadyExistsException;
 import com.codecool.solarwatch.model.dto.UsernamePasswordDTO;
+import com.codecool.solarwatch.model.entity.Role;
 import com.codecool.solarwatch.model.entity.RoleEntity;
 import com.codecool.solarwatch.model.entity.UserEntity;
 import com.codecool.solarwatch.repository.RoleRepository;
 import com.codecool.solarwatch.repository.UserRepository;
 import com.codecool.solarwatch.security.jwt.JwtUtils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,7 +25,9 @@ import java.util.Set;
 import static com.codecool.solarwatch.model.entity.Role.ROLE_ADMIN;
 import static com.codecool.solarwatch.model.entity.Role.ROLE_USER;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -40,33 +45,45 @@ class UserServiceTest {
     private JwtUtils jwtUtils;
     @InjectMocks
     private UserService userService;
+    private static UserEntity user;
+
+    @BeforeAll
+    static void setup() {
+        user = new UserEntity("John", "doe");
+    }
 
 
     @Test
-    void AddRoleForUserSuccessfullyAddsRequestedRoleToUserWhenProvidedValidParameters() {
-        UserEntity user = new UserEntity("John", "doe");
+    void AddRoleForUser_SuccessfullyAddsRequestedRoleToUser_WhenProvidedValidParameters() {
         user.setRoles(Set.of(new RoleEntity(ROLE_USER)));
 
-        when(this.roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
-        this.userService.addRoleFor(user, ROLE_ADMIN);
+        when(roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
+        userService.addRoleFor(user, ROLE_ADMIN);
         boolean containsRequestedRole = user.getRoles().contains(new RoleEntity(ROLE_ADMIN));
 
         assertTrue(containsRequestedRole);
     }
 
     @Test
-    void AddRoleForUserReturnsTrueWhenProvidedValidParameters() {
-        UserEntity user = new UserEntity("John", "doe");
-        user.setRoles(Set.of(new RoleEntity(ROLE_USER)));
+    void AddRoleForUser_ThrowsRuntimeException_WhenProvidedInvalidRoleAsParameter() {
+        Role mockRole = mock();
 
-        when(this.roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
+        when(roleRepository.getRoleEntityByRole(mockRole)).thenReturn(Optional.empty());
 
-        assertTrue(this.userService.addRoleFor(user, ROLE_ADMIN));
+        assertThrows(RuntimeException.class, () -> userService.addRoleFor(user, mockRole));
     }
 
     @Test
-    void addRoleForReturnsFalseWhenUserAlreadyHasProvidedRole() {
-        UserEntity user = new UserEntity("John", "doe");
+    void AddRoleForUser_ReturnsTrue_WhenProvidedValidParameters() {
+        user.setRoles(Set.of(new RoleEntity(ROLE_USER)));
+
+        when(roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
+
+        assertTrue(userService.addRoleFor(user, ROLE_ADMIN));
+    }
+
+    @Test
+    void AddRoleFor_ReturnsFalse_WhenUserAlreadyHasProvidedRole() {
         user.setRoles(Set.of(new RoleEntity(ROLE_ADMIN)));
 
         when(this.roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
@@ -75,34 +92,37 @@ class UserServiceTest {
     }
 
     @Test
-    void addRoleForThrowsRuntimeExceptionWhenProvidedNullAsRole() {
-        UserEntity user = new UserEntity("John", "doe");
-
+    void AddRoleFor_ThrowsRuntimeException_WhenProvidedNullAsRole() {
         assertThrows(RuntimeException.class, () -> this.userService.addRoleFor(user, null));
     }
 
     @Test
-    // TODO get help.
-    void createUserReturnsTrueWhenProvidedValidParameters() {
+    void CreateUser_ReturnsTrue_WhenProvidedValidParameters() {
         UsernamePasswordDTO usernamePasswordDTO = new UsernamePasswordDTO("John", "doe");
-        UserEntity user = new UserEntity(usernamePasswordDTO);
         UserEntity expectedEncodedUser = new UserEntity("John", "encoded");
-        RoleEntity expectedRole = new RoleEntity(ROLE_USER);
-        expectedEncodedUser.setRoles(Set.of(expectedRole));
 
-        when(this.passwordEncoder.encode(usernamePasswordDTO.password()))
-                .thenReturn("encoded");
-        when(this.roleRepository.getRoleEntityByRole(ROLE_USER))
-                .thenReturn(Optional.of(new RoleEntity(ROLE_USER)));
-        when(this.userRepository.save(user))
+        when(userRepository.save(any(UserEntity.class)))
                 .thenReturn(expectedEncodedUser);
 
-        boolean created = this.userService.createUser(usernamePasswordDTO);
+        boolean created = userService.createUser(usernamePasswordDTO);
 
         assertTrue(created);
     }
+
     @Test
-    void createUserThrowsUsernameIsAlreadyExistsExceptionWhenProvidedUserNameAlreadyExists() {
+    void CreateUser_ThrowsInvalidUserNameException_WhenProvidedInvalidUserName() {
+        UsernamePasswordDTO invalidRegisterRequest = new UsernamePasswordDTO("invalid*Name", "asd");
+
+        assertThrows(InvalidUserNameException.class, () -> userService.createUser(invalidRegisterRequest));
+    }
+
+    @Test
+    void CreateUser_ThrowsIllegalArgumentException_WhenProvidedNullAsParameter() {
+        assertThrows(IllegalArgumentException.class, () -> userService.createUser(null));
+    }
+
+    @Test
+    void createUser_ThrowsUsernameIsAlreadyExistsException_WhenProvidedUserNameAlreadyExists() {
         UsernamePasswordDTO usernamePasswordDTO = new UsernamePasswordDTO("John", "doe");
         UserEntity alreadyExistingUser = new UserEntity("John", "abc");
 
@@ -117,9 +137,23 @@ class UserServiceTest {
     }
 
     @Test
-    void grantAdminPrivilegesForGrantsAdminRoleForWhenProvidedValidUsername() {
+    void GrantAdminPrivilegesFor_GrantsAdminRoleForUser_WhenProvidedValidUsername() {
         String username = "john";
         UserEntity user = new UserEntity(username, "doe");
+        userRepository.save(user);
+        UserEntity expectedUserAfterSave = mock();
+        expectedUserAfterSave.setRoles(Set.of(new RoleEntity(ROLE_ADMIN)));
+
+        when(userRepository.findUserEntityByUsername(any(String.class)))
+                .thenReturn(Optional.of(user));
+
+        when(roleRepository.getRoleEntityByRole(any(Role.class)))
+                .thenReturn(Optional.of(mock(RoleEntity.class)));
+
+        when(userRepository.save(any(UserEntity.class)))
+                .thenReturn(expectedUserAfterSave);
+
+        assertTrue(userService.grantAdminPrivilegesFor(username));
     }
 
 }

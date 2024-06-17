@@ -27,6 +27,7 @@ public class UserEntity {
         this.password = password;
         this.roles = new HashSet<>();
     }
+
     public UserEntity(UsernamePasswordDTO usernamePasswordDTO) {
         this.username = usernamePasswordDTO.username();
         this.password = usernamePasswordDTO.password();
@@ -59,8 +60,6 @@ public class UserEntity {
 
     @Override
     public String toString() {
-        return "User{" +
-                "username='" + username + '\'' +
-                '}';
+        return "User: " + this.username;
     }
 }

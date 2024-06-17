@@ -10,7 +10,7 @@ import com.codecool.solarwatch.model.WeatherReport;
 import com.codecool.solarwatch.model.api_response.current_weather_response.CurrentWeatherResponse;
 import com.codecool.solarwatch.model.dto.CurrentWeatherInfoDTO;
 import com.codecool.solarwatch.model.entity.City;
-import com.codecool.solarwatch.model.entity.SunriseSunset;
+import com.codecool.solarwatch.model.entity.SunriseSunsetInfo;
 import com.codecool.solarwatch.repository.CityRepository;
 import com.codecool.solarwatch.repository.SunriseSunsetRepository;
 import jakarta.transaction.Transactional;
@@ -50,38 +50,38 @@ public class OpenWeatherService {
     private City getCityByName(String cityName) {
         return cityRepository
                 .findByName(cityName)
-                .orElseThrow(() -> new NotSupportedCityException(cityName));
+                .orElseThrow(() -> new InvalidCityException(cityName));
     }
 
-    private SunriseSunset getSunriseSunsetByCityAndDate(City city, LocalDate date) {
+    private SunriseSunsetInfo getSunriseSunsetInfoByCityAndDate(City city, LocalDate date) {
         return this.sunriseSunsetRepository
                 .getSunriseSunsetByCityAndDate(city, date)
                 .orElseThrow(() -> new SunriseSunsetNotFoundException(city, date));
     }
 
-    public SunriseSunset getSunriseSunset(String cityName, String date) {
+    public SunriseSunsetInfo getSunriseSunsetInfo(String cityName, String date) {
         LocalDate parsedDate = handleDateParameter(date);
         City city = getCityFromDatabaseOrFetch(cityName);
-        return getSunriseSunsetFromDataBaseOrFetch(city, parsedDate);
+        return getSunriseSunsetInfoFromDataBaseOrFetch(city, parsedDate);
     }
 
-    private SunriseSunset getSunriseSunsetFromDataBaseOrFetch(City city, LocalDate date) {
-        SunriseSunset sunriseSunset;
+    private SunriseSunsetInfo getSunriseSunsetInfoFromDataBaseOrFetch(City city, LocalDate date) {
+        SunriseSunsetInfo sunriseSunsetInfo;
         try {
-            sunriseSunset = getSunriseSunsetByCityAndDate(city, date);
+            sunriseSunsetInfo = getSunriseSunsetInfoByCityAndDate(city, date);
         } catch (SunriseSunsetNotFoundException e) {
             Coordinates coordinates = new Coordinates(city.getLatitude(),
                     city.getLongitude(),
                     city.getCountry(),
                     city.getState());
             SolarResultDetails solarResultDetails = getSolarResultDetails(coordinates, date.toString());
-            sunriseSunset = new SunriseSunset(date,
+            sunriseSunsetInfo = new SunriseSunsetInfo(date,
                     converToLocalTime(solarResultDetails.sunrise()),
                     converToLocalTime(solarResultDetails.sunset()),
                     city);
-            sunriseSunset = this.sunriseSunsetRepository.save(sunriseSunset);
+            sunriseSunsetInfo = this.sunriseSunsetRepository.save(sunriseSunsetInfo);
         }
-        return sunriseSunset;
+        return sunriseSunsetInfo;
     }
 
     private LocalDate handleDateParameter(String date) {
@@ -94,14 +94,13 @@ public class OpenWeatherService {
             }
             return requestedDate;
         } else return LocalDate.now();
-
     }
 
     private City getCityFromDatabaseOrFetch(String cityName) {
         City city;
         try {
             city = getCityByName(cityName);
-        } catch (NotSupportedCityException e) {
+        } catch (InvalidCityException e) {
             city = createCityEntityIfNotInDatabase(cityName);
         }
         return city;
@@ -168,11 +167,13 @@ public class OpenWeatherService {
 
     @Transactional
     public void deleteCityByName(String cityName) {
-        City requestedCity = getCityByName(cityName);
-        if (requestedCity == null) {
-            throw new NotSupportedCityException(cityName);
+        try {
+            City requestedCity = getCityByName(cityName);
+            this.cityRepository.delete(requestedCity);
+            LOGGER.info("City [{}] deleted from database", cityName);
+        } catch (InvalidCityException e) {
+            LOGGER.error("City [{}] does not exist in database", cityName);
         }
-        this.cityRepository.delete(requestedCity);
     }
 
     public void updateCityInfo(String cityName) {
