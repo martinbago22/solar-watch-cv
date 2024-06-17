@@ -100,15 +100,12 @@ class OpenWeatherServiceTest {
     }
     @Test
     void deleteCityByName_DeletesRequestedCity_WhenItExistsInDatabase() {
-        City mockCity = City.builder()
-                .name("asd")
-                .state("asd")
-                .id(1)
-                .country("12")
-                .latitude(12)
-                .longitude(12)
-                .build();
+        City mockCity = mock(City.class);
+        mockCity.setName("Budapest");
+        this.cityRepository.save(mockCity);
+
         when(this.cityRepository.findByName(mockCity.getName()))
                 .thenReturn(Optional.of(mockCity));
+
     }
 }

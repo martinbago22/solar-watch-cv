@@ -1,37 +1,28 @@
 package com.codecool.solarwatch.model.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.List;
 import java.util.Objects;
 
 
 @Entity
-@Builder
 @Table(name = "cities")
 public class City {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, name = "city_id")
     private long id;
-    @Setter
-    @Getter
+
     @Column(name = "city_name")
     private String name;
-    @Setter
-    @Getter
+
     private double longitude;
-    @Setter
-    @Getter
+
     private double latitude;
-    @Setter
-    @Getter
+
     private String state;
-    @Setter
-    @Getter
+
     private String country;
     @OneToMany(mappedBy = "city", cascade = CascadeType.REMOVE)
     private List<SunriseSunsetInfo> sunriseSunsetInfoList;
@@ -54,6 +45,62 @@ public class City {
                 ", state='" + state + '\'' +
                 ", country='" + country + '\'' +
                 '}';
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public List<SunriseSunsetInfo> getSunriseSunsetInfoList() {
+        return sunriseSunsetInfoList;
+    }
+
+    public void setSunriseSunsetInfoList(List<SunriseSunsetInfo> sunriseSunsetInfoList) {
+        this.sunriseSunsetInfoList = sunriseSunsetInfoList;
     }
 
     @Override
