@@ -14,7 +14,7 @@ public class RoleEntity {
     private long id;
     @Enumerated(EnumType.STRING)
     private Role role;
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     private Set<UserEntity> user;
 
     public RoleEntity(Role role) {
@@ -51,5 +51,12 @@ public class RoleEntity {
     @Override
     public int hashCode() {
         return Objects.hash(id, role, user);
+    }
+
+    @Override
+    public String toString() {
+        return "RoleEntity{" +
+                "role=" + role +
+                '}';
     }
 }

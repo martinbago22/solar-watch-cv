@@ -15,7 +15,7 @@ public class UserEntity {
     @Column(unique = true)
     private String username;
     private String password;
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany()
     private Set<RoleEntity> roles;
 
     public UserEntity() {
