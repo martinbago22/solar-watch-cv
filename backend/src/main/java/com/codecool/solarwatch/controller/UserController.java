@@ -1,6 +1,6 @@
 package com.codecool.solarwatch.controller;
 
-import com.codecool.solarwatch.model.dto.UsernamePasswordDTO;
+import com.codecool.solarwatch.model.dto.RegisterRequestDTO;
 import com.codecool.solarwatch.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ public class UserController {
     }
 
     @PostMapping("register")
-    public ResponseEntity<String> addUser(@Valid @RequestBody UsernamePasswordDTO newUserRequest) {
+    public ResponseEntity<String> addUser(@Valid @RequestBody RegisterRequestDTO newUserRequest) {
         return this.userService.createUser(newUserRequest) ?
                 new ResponseEntity<>(String.format("USER: [%s] created", newUserRequest.username()),
                         HttpStatus.CREATED) :
@@ -29,7 +29,7 @@ public class UserController {
 
     // TODO itt mit kell visszaküldeni? jwt string? hogyan köti össze a responseból kapott bármit a kliens böngészője?
     @PostMapping("login")
-    public ResponseEntity<String> login(@RequestBody UsernamePasswordDTO userRequest) {
+    public ResponseEntity<String> login(@RequestBody RegisterRequestDTO userRequest) {
         String jwt = this.userService.login(userRequest);
         return ResponseEntity.ok(jwt);
     }

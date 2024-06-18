@@ -1,8 +1,7 @@
 package com.codecool.solarwatch.service;
 
-import com.codecool.solarwatch.exception.InvalidUserNameException;
 import com.codecool.solarwatch.exception.UserAlreadyExistsException;
-import com.codecool.solarwatch.model.dto.UsernamePasswordDTO;
+import com.codecool.solarwatch.model.dto.RegisterRequestDTO;
 import com.codecool.solarwatch.model.entity.Role;
 import com.codecool.solarwatch.model.entity.RoleEntity;
 import com.codecool.solarwatch.model.entity.UserEntity;
@@ -74,20 +73,17 @@ public class UserService {
     }
 
     @Transactional
-    public boolean createUser(@NonNull UsernamePasswordDTO usernamePasswordDTORequest) {
-        /*if (!isValidRegisterRequest(usernamePasswordDTORequest)) {
-            throw new InvalidUserNameException();
-        }*/
-        return attemptToCreateUser(usernamePasswordDTORequest);
+    public boolean createUser(@NonNull RegisterRequestDTO registerRequestDTORequest) {
+        return attemptToCreateUser(registerRequestDTORequest);
     }
 
     //TODO mit küldünk itt vissza? String jwtToken? boolean? hol adjuk hozzá a role-t hogy a loginelt user már user roleban van?
     @Transactional
-    public String login(UsernamePasswordDTO usernamePasswordDTORequest) {
+    public String login(RegisterRequestDTO registerRequestDTORequest) {
         String jwt = null;
         try {
             //TODO kérdezni  ez a rész mit csinál?
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(usernamePasswordDTORequest.username(), usernamePasswordDTORequest.password()));
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(registerRequestDTORequest.username(), registerRequestDTORequest.password()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             jwt = jwtUtils.generateJwtToken(authentication);
@@ -126,33 +122,11 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Role not found"));
     }
 
-    private boolean isValidRegisterRequest(@NonNull UsernamePasswordDTO usernamePasswordDTO) {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        Set<ConstraintViolation<UsernamePasswordDTO>> violations = validator.validate(usernamePasswordDTO);
-        if (!violations.isEmpty()) {
-            logViolationMessages(violations);
-            return false;
-        } else return true;
-    }
+    private boolean attemptToCreateUser(RegisterRequestDTO registerRequestDTORequest) {
+        userAlreadyExists(registerRequestDTORequest.username());
 
-    private void logViolationMessages(Set<ConstraintViolation<UsernamePasswordDTO>> violations) {
-        violations.forEach(violation -> LOGGER.error(violation.getMessage()));
-    }
-
-    private void handleDataIntegrityViolationException(DataIntegrityViolationException e) {
-        if (e.getCause() instanceof SQLException sqlEx) {
-            LOGGER.error("SQL error code: {}, state: {}, message: {}", sqlEx.getErrorCode(), sqlEx.getSQLState(), sqlEx.getMessage());
-        } else {
-            LOGGER.error("Data access error: {}", e.getMessage());
-        }
-    }
-
-    private boolean attemptToCreateUser(UsernamePasswordDTO usernamePasswordDTORequest) {
-        userAlreadyExists(usernamePasswordDTORequest.username());
-
-        String hashedPassword = encoder.encode(usernamePasswordDTORequest.password());
-        UserEntity newUser = new UserEntity(usernamePasswordDTORequest.username(), hashedPassword);
+        String hashedPassword = encoder.encode(registerRequestDTORequest.password());
+        UserEntity newUser = new UserEntity(registerRequestDTORequest.username(), hashedPassword);
         newUser.setRoles(Set.of(new RoleEntity(ROLE_USER)));
 
         userRepository.save(newUser);
