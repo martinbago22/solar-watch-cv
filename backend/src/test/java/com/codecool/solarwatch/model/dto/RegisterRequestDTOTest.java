@@ -3,8 +3,8 @@ package com.codecool.solarwatch.model.dto;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-import jdk.jfr.Description;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-// violations.iterator
+
 
 class RegisterRequestDTOTest {
     Set<ConstraintViolation<RegisterRequestDTO>> violations = new HashSet<>();
@@ -23,10 +23,11 @@ class RegisterRequestDTOTest {
         underTest = null;
     }
     @Nested
-    @Description("valami")
+    @DisplayName("Test cases for valid DTO requests")
     class WhenDtoIsValid {
         @Test
-        void későbbbefejezem() {
+        @DisplayName("No violations occur when receiving valid username from request")
+        void Violations_IsEmpty_WhenDtoHasValidUsername() {
             underTest = new RegisterRequestDTO("valid", "doe");
 
             violations = validate(underTest);
@@ -35,7 +36,7 @@ class RegisterRequestDTOTest {
         }
     }
     @Nested
-    @Description("valami")
+    @DisplayName("Test cases for invalid DTO requests")
     class WhenDtoIsInvalid {
         String actualViolationType = violations.iterator().next().getPropertyPath().toString();
     }
