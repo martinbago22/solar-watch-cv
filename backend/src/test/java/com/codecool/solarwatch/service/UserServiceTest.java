@@ -1,8 +1,7 @@
 package com.codecool.solarwatch.service;
 
-import com.codecool.solarwatch.exception.InvalidUserNameException;
 import com.codecool.solarwatch.exception.UserAlreadyExistsException;
-import com.codecool.solarwatch.model.dto.UsernamePasswordDTO;
+import com.codecool.solarwatch.model.dto.RegisterRequestDTO;
 import com.codecool.solarwatch.model.entity.Role;
 import com.codecool.solarwatch.model.entity.RoleEntity;
 import com.codecool.solarwatch.model.entity.UserEntity;
@@ -100,12 +99,12 @@ class UserServiceTest {
 
     @Test
     void CreateUser_ReturnsTrue_WhenProvidedValidParameters() {
-        UsernamePasswordDTO usernamePasswordDTO = new UsernamePasswordDTO("qwe", "doe");
-        UserEntity expectedEncodedUser = new UserEntity(usernamePasswordDTO.username(), "asd");
+        RegisterRequestDTO registerRequestDTO = new RegisterRequestDTO("qwe", "doe");
+        UserEntity expectedEncodedUser = new UserEntity(registerRequestDTO.username(), "asd");
         expectedEncodedUser.setRoles(Set.of(new RoleEntity(ROLE_USER)));
 
         //when(passwordEncoder.encode(usernamePasswordDTO.password())).thenReturn("asd");
-        userService.createUser(usernamePasswordDTO);
+        userService.createUser(registerRequestDTO);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         verify(userRepository, times(1)).save(argumentCaptor.capture());
         UserEntity actual = argumentCaptor.getValue();
@@ -118,7 +117,7 @@ class UserServiceTest {
 
     @Test
     void CreateUser_ThrowsInvalidUserNameException_WhenProvidedInvalidUserName() {
-        UsernamePasswordDTO invalidRegisterRequest = new UsernamePasswordDTO("invalid*Name", "asd");
+        RegisterRequestDTO invalidRegisterRequest = new RegisterRequestDTO("invalid*Name", "asd");
 
         assertThrows(InvalidUserNameException.class, () -> userService.createUser(invalidRegisterRequest));
     }
@@ -130,13 +129,13 @@ class UserServiceTest {
 
     @Test
     void createUser_ThrowsUsernameIsAlreadyExistsException_WhenProvidedUserNameAlreadyExists() {
-        UsernamePasswordDTO usernamePasswordDTO = new UsernamePasswordDTO("John", "doe");
+        RegisterRequestDTO registerRequestDTO = new RegisterRequestDTO("John", "doe");
 
-        when(this.userRepository.existsByUsername(usernamePasswordDTO.username()))
+        when(this.userRepository.existsByUsername(registerRequestDTO.username()))
                 .thenReturn(true);
 
-        assertThrows(UserAlreadyExistsException.class, () -> this.userService.createUser(usernamePasswordDTO));
-        verify(userRepository, never()).save(new UserEntity(usernamePasswordDTO));
+        assertThrows(UserAlreadyExistsException.class, () -> this.userService.createUser(registerRequestDTO));
+        verify(userRepository, never()).save(new UserEntity(registerRequestDTO));
     }
 
     @Test

@@ -30,31 +30,27 @@ public class WeatherForecastControllerAdvice {
     }
 
     @ResponseBody
-    @ExceptionHandler(InvalidUserNameException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String invalidUserNameExceptionHandler(InvalidUserNameException e) {
-        return e.getMessage();
-    }
-
-    @ResponseBody
     @ExceptionHandler(UnexpectedRollbackException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String unexpectedRollbackExceptionHandler(UnexpectedRollbackException e) {
         return "Unexpected rollback happened";
     }
+
     @ResponseBody
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public String dataIntegrityViolationHandler(DataIntegrityViolationException e) {
         return e.getMessage();
     }
+
     @ResponseBody
     @ExceptionHandler(InvalidDateException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String invalidDateExceptionHandler(InvalidDateException e) {
         return e.getMessage();
     }
-    @ExceptionHandler(value = { MethodArgumentNotValidException.class })
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> onInvalidMethodArgumentExceptions(MethodArgumentNotValidException exception) {
         Map<String, String> response = new HashMap<>();
 
