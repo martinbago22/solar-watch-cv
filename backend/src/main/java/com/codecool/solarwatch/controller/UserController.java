@@ -2,6 +2,7 @@ package com.codecool.solarwatch.controller;
 
 import com.codecool.solarwatch.model.dto.UsernamePasswordDTO;
 import com.codecool.solarwatch.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -18,9 +19,8 @@ public class UserController {
         this.userService = userService;
     }
 
-    //TODO kérdések a status kódokról, response entity, stb.
     @PostMapping("register")
-    public ResponseEntity<String> addUser(@RequestBody UsernamePasswordDTO newUserRequest) {
+    public ResponseEntity<String> addUser(@Valid @RequestBody UsernamePasswordDTO newUserRequest) {
         return this.userService.createUser(newUserRequest) ?
                 new ResponseEntity<>(String.format("USER: [%s] created", newUserRequest.username()),
                         HttpStatus.CREATED) :

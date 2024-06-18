@@ -12,6 +12,7 @@ import com.codecool.solarwatch.security.jwt.JwtUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,8 +27,7 @@ import static com.codecool.solarwatch.model.entity.Role.ROLE_ADMIN;
 import static com.codecool.solarwatch.model.entity.Role.ROLE_USER;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -51,6 +51,8 @@ class UserServiceTest {
     static void setup() {
         user = new UserEntity("John", "doe");
     }
+
+    //TODO Nested annotation DisplayName Description
 
 
     @Test
@@ -98,15 +100,20 @@ class UserServiceTest {
 
     @Test
     void CreateUser_ReturnsTrue_WhenProvidedValidParameters() {
-        UsernamePasswordDTO usernamePasswordDTO = new UsernamePasswordDTO("John", "doe");
-        UserEntity expectedEncodedUser = new UserEntity("John", "encoded");
+        UsernamePasswordDTO usernamePasswordDTO = new UsernamePasswordDTO("qwe", "doe");
+        UserEntity expectedEncodedUser = new UserEntity(usernamePasswordDTO.username(), "asd");
+        expectedEncodedUser.setRoles(Set.of(new RoleEntity(ROLE_USER)));
 
-        when(userRepository.save(any(UserEntity.class)))
-                .thenReturn(expectedEncodedUser);
+        //when(passwordEncoder.encode(usernamePasswordDTO.password())).thenReturn("asd");
+        userService.createUser(usernamePasswordDTO);
+        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        verify(userRepository, times(1)).save(argumentCaptor.capture());
+        UserEntity actual = argumentCaptor.getValue();
 
-        boolean created = userService.createUser(usernamePasswordDTO);
+        System.out.println(expectedEncodedUser);
+        System.out.println(actual);
 
-        assertTrue(created);
+        assertEquals(expectedEncodedUser, actual);
     }
 
     @Test
@@ -124,12 +131,12 @@ class UserServiceTest {
     @Test
     void createUser_ThrowsUsernameIsAlreadyExistsException_WhenProvidedUserNameAlreadyExists() {
         UsernamePasswordDTO usernamePasswordDTO = new UsernamePasswordDTO("John", "doe");
-        UserEntity alreadyExistingUser = new UserEntity("John", "abc");
 
-        when(this.userRepository.findUserEntityByUsername(usernamePasswordDTO.username()))
-                .thenReturn(Optional.of(alreadyExistingUser));
+        when(this.userRepository.existsByUsername(usernamePasswordDTO.username()))
+                .thenReturn(true);
 
         assertThrows(UserAlreadyExistsException.class, () -> this.userService.createUser(usernamePasswordDTO));
+        verify(userRepository, never()).save(new UserEntity(usernamePasswordDTO));
     }
 
     @Test

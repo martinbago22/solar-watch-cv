@@ -4,8 +4,10 @@ import com.codecool.solarwatch.model.dto.UsernamePasswordDTO;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
+//TODO validation with the same logic as DTO.
 @Entity
 @Table(name = "users")
 public class UserEntity {
@@ -15,7 +17,7 @@ public class UserEntity {
     @Column(unique = true)
     private String username;
     private String password;
-    @ManyToMany()
+    @ManyToMany(cascade = CascadeType.ALL)
     private Set<RoleEntity> roles;
 
     public UserEntity() {
@@ -57,9 +59,21 @@ public class UserEntity {
     public void setRoles(Set<RoleEntity> roles) {
         this.roles = roles;
     }
-
     @Override
     public String toString() {
         return "User: " + this.username;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserEntity user = (UserEntity) o;
+        return Objects.equals(id, user.id) && Objects.equals(username, user.username);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username);
     }
 }
