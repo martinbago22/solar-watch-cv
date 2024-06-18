@@ -30,6 +30,8 @@ public class MockMvcIT {
     //TODO saját DTO-t használni OBJECTMAPPER
     // TERMINÁL NYITÁSKOR KÖRNYEZETI VÁLTOZÓK BEÁLLÍTÁSA EXPORT VARIABLE_NAME=VARIABLE echo $VARIABLE_NAME (check the variable)
     // (minden terminál nyitáskor elvesznek) , TEST - IT átnevezés (így nem unit testként futtatja hanem integrációs tesztként -> failsafe plugin -> mvn verify
+    // Továbvinni a service és a db rétegre a tesztet, hogy valóban létrehozza e a szükséges adatokat
+    // SUREFIRE plugin kell az intergrációs tesztekre
     @BeforeEach
     void setup() throws Exception {
         jwtToken = getJwtToken();

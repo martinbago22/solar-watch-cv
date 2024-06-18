@@ -28,12 +28,10 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.UnexpectedRollbackException;
 
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.codecool.solarwatch.model.entity.Role.ROLE_ADMIN;
@@ -47,6 +45,7 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder encoder;
     private final JwtUtils jwtUtils;
+    //TODO public methods on top
 
     @Autowired
     public UserService(UserRepository userRepository, RoleRepository roleRepository, AuthenticationManager authenticationManager, PasswordEncoder encoder, JwtUtils jwtUtils) {
@@ -76,9 +75,9 @@ public class UserService {
 
     @Transactional
     public boolean createUser(@NonNull UsernamePasswordDTO usernamePasswordDTORequest) {
-        if (!isValidRegisterRequest(usernamePasswordDTORequest)) {
+        /*if (!isValidRegisterRequest(usernamePasswordDTORequest)) {
             throw new InvalidUserNameException();
-        }
+        }*/
         return attemptToCreateUser(usernamePasswordDTORequest);
     }
 
@@ -108,9 +107,11 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException(String.format("Couldn't find user named [ %s ]", userName)));
     }
 
-    private boolean userAlreadyExists(String userName) {
-        Optional<UserEntity> searchedUser = this.userRepository.findUserEntityByUsername(userName);
-        return searchedUser.isPresent();
+    private void userAlreadyExists(String userName) {
+        boolean userExists = userRepository.existsByUsername(userName);
+        if (userExists) {
+            throw new UserAlreadyExistsException(userName);
+        }
     }
 
     @Transactional
@@ -148,29 +149,15 @@ public class UserService {
     }
 
     private boolean attemptToCreateUser(UsernamePasswordDTO usernamePasswordDTORequest) {
-        if (!userAlreadyExists(usernamePasswordDTORequest.username())) {
-            try {
-                String hashedPassword = encoder.encode(usernamePasswordDTORequest.password());
-                UserEntity newUser = new UserEntity(usernamePasswordDTORequest.username(), hashedPassword);
-                newUser.setRoles(Set.of(new RoleEntity(ROLE_USER)));
+        userAlreadyExists(usernamePasswordDTORequest.username());
 
-                userRepository.save(newUser);
-                LOGGER.info("USER: [{}] saved to database", newUser.getUsername());
-                return true;
+        String hashedPassword = encoder.encode(usernamePasswordDTORequest.password());
+        UserEntity newUser = new UserEntity(usernamePasswordDTORequest.username(), hashedPassword);
+        newUser.setRoles(Set.of(new RoleEntity(ROLE_USER)));
 
-            } catch (DataIntegrityViolationException e) {
-                handleDataIntegrityViolationException(e);
-                return false;
-            } catch (UnexpectedRollbackException e) {
-                LOGGER.error("Transaction rollback occurred: {}", e.getMessage());
-                throw new UnexpectedRollbackException(e.getMessage());
-            } catch (RuntimeException e) {
-                LOGGER.error("An unexpected error occurred: {}", e.getMessage());
-                throw new RuntimeException(e.getMessage());
-            }
-        } else {
-            LOGGER.error("Username {} is already in use", usernamePasswordDTORequest.username());
-            throw new UserAlreadyExistsException(usernamePasswordDTORequest.username());
-        }
+        userRepository.save(newUser);
+        LOGGER.info("USER: [{}] saved to database", newUser.getUsername());
+        return true;
     }
+
 }

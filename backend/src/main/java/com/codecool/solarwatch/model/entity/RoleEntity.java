@@ -14,7 +14,7 @@ public class RoleEntity {
     private long id;
     @Enumerated(EnumType.STRING)
     private Role role;
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<UserEntity> user;
 
     public RoleEntity(Role role) {
