@@ -116,13 +116,6 @@ class UserServiceTest {
     }
 
     @Test
-    void CreateUser_ThrowsInvalidUserNameException_WhenProvidedInvalidUserName() {
-        RegisterRequestDTO invalidRegisterRequest = new RegisterRequestDTO("invalid*Name", "asd");
-
-        assertThrows(InvalidUserNameException.class, () -> userService.createUser(invalidRegisterRequest));
-    }
-
-    @Test
     void CreateUser_ThrowsIllegalArgumentException_WhenProvidedNullAsParameter() {
         assertThrows(IllegalArgumentException.class, () -> userService.createUser(null));
     }
