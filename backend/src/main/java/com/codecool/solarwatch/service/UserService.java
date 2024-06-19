@@ -9,14 +9,9 @@ import com.codecool.solarwatch.repository.RoleRepository;
 import com.codecool.solarwatch.repository.UserRepository;
 import com.codecool.solarwatch.security.jwt.JwtUtils;
 import jakarta.transaction.Transactional;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,7 +23,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,8 +38,6 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder encoder;
     private final JwtUtils jwtUtils;
-    //TODO public methods on top
-
     @Autowired
     public UserService(UserRepository userRepository, RoleRepository roleRepository, AuthenticationManager authenticationManager, PasswordEncoder encoder, JwtUtils jwtUtils) {
         this.userRepository = userRepository;
@@ -53,6 +45,11 @@ public class UserService {
         this.authenticationManager = authenticationManager;
         this.encoder = encoder;
         this.jwtUtils = jwtUtils;
+    }
+
+    @Transactional
+    public boolean createUser(@NonNull RegisterRequestDTO registerRequestDTORequest) {
+        return attemptToCreateUser(registerRequestDTORequest);
     }
 
     @Transactional
@@ -73,8 +70,10 @@ public class UserService {
     }
 
     @Transactional
-    public boolean createUser(@NonNull RegisterRequestDTO registerRequestDTORequest) {
-        return attemptToCreateUser(registerRequestDTORequest);
+    public boolean grantAdminPrivilegesFor(String userName) {
+        UserEntity user = getUserBy(userName);
+        LOGGER.info(String.format("Admin privileges granted for user %s%n", user.getUsername()));
+        return addRoleFor(user, ROLE_ADMIN);
     }
 
     //TODO mit küldünk itt vissza? String jwtToken? boolean? hol adjuk hozzá a role-t hogy a loginelt user már user roleban van?
@@ -103,23 +102,16 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException(String.format("Couldn't find user named [ %s ]", userName)));
     }
 
+    private RoleEntity getRoleEntityBy(Role role) {
+        return this.roleRepository.getRoleEntityByRole(role)
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+    }
+
     private void userAlreadyExists(String userName) {
         boolean userExists = userRepository.existsByUsername(userName);
         if (userExists) {
             throw new UserAlreadyExistsException(userName);
         }
-    }
-
-    @Transactional
-    public boolean grantAdminPrivilegesFor(String userName) {
-        UserEntity user = getUserBy(userName);
-        LOGGER.info(String.format("Admin privileges granted for user %s%n", user.getUsername()));
-        return addRoleFor(user, ROLE_ADMIN);
-    }
-
-    private RoleEntity getRoleEntityBy(Role role) {
-        return this.roleRepository.getRoleEntityByRole(role)
-                .orElseThrow(() -> new RuntimeException("Role not found"));
     }
 
     private boolean attemptToCreateUser(RegisterRequestDTO registerRequestDTORequest) {

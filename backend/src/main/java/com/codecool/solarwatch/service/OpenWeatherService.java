@@ -7,7 +7,7 @@ import com.codecool.solarwatch.exception.SunriseSunsetNotFoundException;
 import com.codecool.solarwatch.model.Coordinates;
 import com.codecool.solarwatch.model.SolarResultDetails;
 import com.codecool.solarwatch.model.WeatherReport;
-import com.codecool.solarwatch.model.api_response.current_weather_response.CurrentWeatherResponse;
+import com.codecool.solarwatch.api.weather.current_weather_response.CurrentWeatherResponse;
 import com.codecool.solarwatch.model.dto.CurrentWeatherInfoDTO;
 import com.codecool.solarwatch.model.entity.City;
 import com.codecool.solarwatch.model.entity.SunriseSunsetInfo;

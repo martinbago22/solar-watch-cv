@@ -9,7 +9,7 @@ export async function getWeatherInfo(): Promise<string> {
 		return 'Error fetching weather data';
 	}
 }
-export async function registerUser(username: string, password: string): Promise<string> {
+export async function registerUser (username: string, password: string): Promise<string> {
     const userRegisterRequest = {
       username,
       password

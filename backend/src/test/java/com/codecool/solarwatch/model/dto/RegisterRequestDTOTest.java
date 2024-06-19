@@ -13,7 +13,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
+@DisplayName("RegisterRequestDTO Unit test")
 class RegisterRequestDTOTest {
     Set<ConstraintViolation<RegisterRequestDTO>> violations = new HashSet<>();
     RegisterRequestDTO underTest = null;
@@ -38,7 +38,9 @@ class RegisterRequestDTOTest {
     @Nested
     @DisplayName("Test cases for invalid DTO requests")
     class WhenDtoIsInvalid {
-        String actualViolationType = violations.iterator().next().getPropertyPath().toString();
+        @Test
+        void RegisterRequest_ViolatesMaxCharacterConstraint_WhenUsernameIsLongerThanEightCharacters
+
     }
     private Set<ConstraintViolation<RegisterRequestDTO>> validate(RegisterRequestDTO underTest) {
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
