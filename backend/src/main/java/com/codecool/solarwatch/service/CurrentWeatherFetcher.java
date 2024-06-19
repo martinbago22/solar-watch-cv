@@ -20,34 +20,4 @@ public class CurrentWeatherFetcher {
         this.webClient = webClient;
         this.geoCodeService = geoCodeService;
     }
-
-    private SolarResultDetails getSolarResultDetails(Coordinates coordinates, String date) {
-        String url;
-        if (isDateProvided(date)) {
-            if (isDateCorrectFormat(date))
-                url = String.format(API + "lat=%s&lng=%s&date=%s",
-                        coordinates.latitude(),
-                        coordinates.longitude(),
-                        date);
-            else {
-                throw new InvalidDateException();
-            }
-        } else {
-            url = String.format(API + "lat=%s&lng=%s", coordinates.latitude(), coordinates.longitude());
-        }
-        WeatherReport weatherReport = getWeatherReportFrom(url);
-        return getSolarResultDetailsFrom(weatherReport);
-    }
-    private boolean isDateProvided(String date) {
-        return date != null && !date.trim().isEmpty();
-    }
-
-    private boolean isDateCorrectFormat(String date) {
-        try {
-            LocalDate localDate = LocalDate.parse(date);
-            return true;
-        } catch (DateTimeParseException e) {
-            return false;
-        }
-    }
 }
