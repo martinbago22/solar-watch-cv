@@ -42,6 +42,7 @@ class RegisterRequestDTOTest {
     @DisplayName("Test cases for invalid DTO requests")
     class WhenDtoIsInvalid {
         @Test
+        @DisplayName("Validation fails when username is too long")
         void WhenUsernameIsTooLong_ThenValidationFails() {
             underTest = new RegisterRequestDTO("longerThanTenCharacters", "doe");
 
@@ -54,11 +55,25 @@ class RegisterRequestDTOTest {
         }
 
         @Test
+        @DisplayName("Validation fails when username is too short")
         void WhenUsernameIsTooShort_ThenValidationFails() {
             underTest = new RegisterRequestDTO("one", "doe");
 
             violations = validate(underTest);
             String expectedViolationMessage = "Username must be between 4 and 10 characters long";
+            String actualViolationMessage = getViolationMessage(violations);
+
+            assertFalse(violations.isEmpty());
+            assertEquals(expectedViolationMessage, actualViolationMessage);
+        }
+
+        @Test
+        @DisplayName("Validation fails when username contains special characters")
+        void WhenUsernameContainsSpecialCharacters_ThenValidationFails() {
+            underTest = new RegisterRequestDTO("@£&$", "doe");
+
+            violations = validate(underTest);
+            String expectedViolationMessage = "Username cannot contain any special characters";
             String actualViolationMessage = getViolationMessage(violations);
 
             assertFalse(violations.isEmpty());
