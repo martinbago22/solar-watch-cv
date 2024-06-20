@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 
 public record RegisterRequestDTO(
         @Pattern(regexp = "^[a-zA-Z0-9.]*$", message = "Username cannot contain any special characters")
-        @Size(min = 2, max = 8, message = "Username must be between 2-8 characters long")
+        @Size(min = 4, max = 10, message = "Username must be between 4 and 10 characters long")
         String username,
         String password) {
 }

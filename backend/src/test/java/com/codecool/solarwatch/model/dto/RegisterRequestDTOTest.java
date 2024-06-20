@@ -43,20 +43,34 @@ class RegisterRequestDTOTest {
     class WhenDtoIsInvalid {
         @Test
         void WhenUsernameIsTooLong_ThenValidationFails() {
-            underTest = new RegisterRequestDTO("longerThanEightCharacters", "doe");
+            underTest = new RegisterRequestDTO("longerThanTenCharacters", "doe");
 
             violations = validate(underTest);
-            String expectedViolationMessage = "Username must be between 2-8 characters long";
+            String expectedViolationMessage = "Username must be between 4 and 10 characters long";
             String actualViolationMessage = violations.iterator().next().getMessage();
 
             assertFalse(violations.isEmpty(), "Expected violations but got none");
             assertEquals(expectedViolationMessage, actualViolationMessage);
         }
 
+        @Test
+        void WhenUsernameIsTooShort_ThenValidationFails() {
+            underTest = new RegisterRequestDTO("one", "doe");
+
+            violations = validate(underTest);
+            String expectedViolationMessage = "Username must be between 4 and 10 characters long";
+            String actualViolationMessage = getViolationMessage(violations);
+
+            assertFalse(violations.isEmpty());
+            assertEquals(expectedViolationMessage, actualViolationMessage);
+        }
     }
 
     private Set<ConstraintViolation<RegisterRequestDTO>> validate(RegisterRequestDTO underTest) {
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         return validator.validate(underTest);
+    }
+    private String getViolationMessage(Set<ConstraintViolation<RegisterRequestDTO>> violations) {
+        return violations.iterator().next().getMessage();
     }
 }
