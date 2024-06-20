@@ -79,12 +79,26 @@ class RegisterRequestDTOTest {
             assertFalse(violations.isEmpty());
             assertEquals(expectedViolationMessage, actualViolationMessage);
         }
+
+        @Test
+        @DisplayName("Validation fails when username is empty")
+        void WhenUsernameIsNull_ThenValidationFails() {
+            underTest = new RegisterRequestDTO(null, "doe");
+
+            violations = validate(underTest);
+            String expectedViolationMessage = "Username cannot be empty";
+            String actualViolationMessage = getViolationMessage(violations);
+
+            assertFalse(violations.isEmpty());
+            assertEquals(expectedViolationMessage, actualViolationMessage);
+        }
     }
 
     private Set<ConstraintViolation<RegisterRequestDTO>> validate(RegisterRequestDTO underTest) {
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         return validator.validate(underTest);
     }
+
     private String getViolationMessage(Set<ConstraintViolation<RegisterRequestDTO>> violations) {
         return violations.iterator().next().getMessage();
     }
