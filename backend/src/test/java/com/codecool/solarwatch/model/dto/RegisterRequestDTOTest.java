@@ -92,6 +92,19 @@ class RegisterRequestDTOTest {
             assertFalse(violations.isEmpty());
             assertEquals(expectedViolationMessage, actualViolationMessage);
         }
+
+        @Test
+        @DisplayName("Validation fails when password is empty")
+        void WhenPasswordIsEmpty_ThenValidationFails() {
+            underTest = new RegisterRequestDTO("valid", "   ");
+
+            violations = validate(underTest);
+            String expectedViolationMessage = "Password must be minimum 4 and maximum 10 characters long";
+            String actualViolationMessage = getViolationMessage(violations);
+
+            assertFalse(violations.isEmpty());
+            assertEquals(expectedViolationMessage, actualViolationMessage);
+        }
     }
 
     private Set<ConstraintViolation<RegisterRequestDTO>> validate(RegisterRequestDTO underTest) {
