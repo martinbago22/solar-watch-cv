@@ -8,7 +8,12 @@ import com.codecool.solarwatch.model.entity.UserEntity;
 import com.codecool.solarwatch.repository.RoleRepository;
 import com.codecool.solarwatch.repository.UserRepository;
 import com.codecool.solarwatch.security.jwt.JwtUtils;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -51,50 +56,56 @@ class UserServiceTest {
         user = new UserEntity("John", "doe");
     }
 
-    //TODO Nested annotation DisplayName Description
 
+    @Nested
+    @DisplayName("Test cases for valid attempts at adding specified role to user")
+    class WhenAddRoleForIsSuccessful {
+        @Test
+        void AddRoleForUser_SuccessfullyAddsRequestedRoleToUser_WhenProvidedValidParameters() {
+            user.setRoles(Set.of(new RoleEntity(ROLE_USER)));
 
-    @Test
-    void AddRoleForUser_SuccessfullyAddsRequestedRoleToUser_WhenProvidedValidParameters() {
-        user.setRoles(Set.of(new RoleEntity(ROLE_USER)));
+            when(roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
+            userService.addRoleFor(user, ROLE_ADMIN);
+            boolean containsRequestedRole = user.getRoles().contains(new RoleEntity(ROLE_ADMIN));
 
-        when(roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
-        userService.addRoleFor(user, ROLE_ADMIN);
-        boolean containsRequestedRole = user.getRoles().contains(new RoleEntity(ROLE_ADMIN));
+            assertTrue(containsRequestedRole);
+        }
 
-        assertTrue(containsRequestedRole);
+        @Test
+        void AddRoleForUser_ReturnsTrue_WhenProvidedValidParameters() {
+            user.setRoles(Set.of(new RoleEntity(ROLE_USER)));
+
+            when(roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
+
+            assertTrue(userService.addRoleFor(user, ROLE_ADMIN));
+        }
     }
 
-    @Test
-    void AddRoleForUser_ThrowsRuntimeException_WhenProvidedInvalidRoleAsParameter() {
-        Role mockRole = mock();
+    @Nested
+    @DisplayName("Test cases for invalid attempts at adding specified role to user")
+    class WhenAddRoleForIsUnsuccessful {
+        @Test
+        void AddRoleForUser_ThrowsRuntimeException_WhenProvidedInvalidRoleAsParameter() {
+            Role mockRole = mock();
 
-        when(roleRepository.getRoleEntityByRole(mockRole)).thenReturn(Optional.empty());
+            when(roleRepository.getRoleEntityByRole(mockRole)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> userService.addRoleFor(user, mockRole));
-    }
+            assertThrows(RuntimeException.class, () -> userService.addRoleFor(user, mockRole));
+        }
 
-    @Test
-    void AddRoleForUser_ReturnsTrue_WhenProvidedValidParameters() {
-        user.setRoles(Set.of(new RoleEntity(ROLE_USER)));
+        @Test
+        void AddRoleFor_ReturnsFalse_WhenUserAlreadyHasProvidedRole() {
+            user.setRoles(Set.of(new RoleEntity(ROLE_ADMIN)));
 
-        when(roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
+            when(roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
 
-        assertTrue(userService.addRoleFor(user, ROLE_ADMIN));
-    }
+            assertFalse(userService.addRoleFor(user, ROLE_ADMIN));
+        }
 
-    @Test
-    void AddRoleFor_ReturnsFalse_WhenUserAlreadyHasProvidedRole() {
-        user.setRoles(Set.of(new RoleEntity(ROLE_ADMIN)));
-
-        when(this.roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
-
-        assertFalse(this.userService.addRoleFor(user, ROLE_ADMIN));
-    }
-
-    @Test
-    void AddRoleFor_ThrowsRuntimeException_WhenProvidedNullAsRole() {
-        assertThrows(RuntimeException.class, () -> this.userService.addRoleFor(user, null));
+        @Test
+        void AddRoleFor_ThrowsRuntimeException_WhenProvidedNullAsRole() {
+            Set<ConstraintViolation<String>> set = null;
+        }
     }
 
     @Test
@@ -103,7 +114,6 @@ class UserServiceTest {
         UserEntity expectedEncodedUser = new UserEntity(registerRequestDTO.username(), "asd");
         expectedEncodedUser.setRoles(Set.of(new RoleEntity(ROLE_USER)));
 
-        //when(passwordEncoder.encode(usernamePasswordDTO.password())).thenReturn("asd");
         userService.createUser(registerRequestDTO);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         verify(userRepository, times(1)).save(argumentCaptor.capture());
@@ -153,6 +163,15 @@ class UserServiceTest {
                 .thenReturn(expectedUserAfterSave);
 
         assertTrue(userService.grantAdminPrivilegesFor(username));
+    }
+
+    private Set<ConstraintViolation<RegisterRequestDTO>> validate(RegisterRequestDTO underTest) {
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        return validator.validate(underTest);
+    }
+
+    private String getViolationMessage(Set<ConstraintViolation<RegisterRequestDTO>> violations) {
+        return violations.iterator().next().getMessage();
     }
 
 }

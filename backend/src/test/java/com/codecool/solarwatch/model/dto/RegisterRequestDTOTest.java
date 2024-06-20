@@ -42,21 +42,103 @@ class RegisterRequestDTOTest {
     @DisplayName("Test cases for invalid DTO requests")
     class WhenDtoIsInvalid {
         @Test
+        @DisplayName("Validation fails when username is too long")
         void WhenUsernameIsTooLong_ThenValidationFails() {
-            underTest = new RegisterRequestDTO("longerThanEightCharacters", "doe");
+            underTest = new RegisterRequestDTO("longerThanTenCharacters", "doe");
 
             violations = validate(underTest);
-            String expectedViolationMessage = "Username must be between 2-8 characters long";
+            String expectedViolationMessage = "Username must be between 4 and 10 characters long";
             String actualViolationMessage = violations.iterator().next().getMessage();
 
             assertFalse(violations.isEmpty(), "Expected violations but got none");
             assertEquals(expectedViolationMessage, actualViolationMessage);
         }
 
+        @Test
+        @DisplayName("Validation fails when username is too short")
+        void WhenUsernameIsTooShort_ThenValidationFails() {
+            underTest = new RegisterRequestDTO("one", "doe");
+
+            violations = validate(underTest);
+            String expectedViolationMessage = "Username must be between 4 and 10 characters long";
+            String actualViolationMessage = getViolationMessage(violations);
+
+            assertFalse(violations.isEmpty());
+            assertEquals(expectedViolationMessage, actualViolationMessage);
+        }
+
+        @Test
+        @DisplayName("Validation fails when username contains special characters")
+        void WhenUsernameContainsSpecialCharacters_ThenValidationFails() {
+            underTest = new RegisterRequestDTO("@£&$", "doe");
+
+            violations = validate(underTest);
+            String expectedViolationMessage = "Username cannot contain any special characters";
+            String actualViolationMessage = getViolationMessage(violations);
+
+            assertFalse(violations.isEmpty());
+            assertEquals(expectedViolationMessage, actualViolationMessage);
+        }
+
+        @Test
+        @DisplayName("Validation fails when username is empty")
+        void WhenUsernameIsNull_ThenValidationFails() {
+            underTest = new RegisterRequestDTO(null, "doe");
+
+            violations = validate(underTest);
+            String expectedViolationMessage = "Username cannot be empty";
+            String actualViolationMessage = getViolationMessage(violations);
+
+            assertFalse(violations.isEmpty());
+            assertEquals(expectedViolationMessage, actualViolationMessage);
+        }
+
+        @Test
+        @DisplayName("Validation fails when username contains only whitespaces")
+        void WhenUsernameContainsOnlyWhitespaces_ThenValidationFails() {
+            underTest = new RegisterRequestDTO("     ", "doeas");
+
+            violations = validate(underTest);
+            String expectedViolationMessage = "Username cannot contain any special characters";
+            String actualViolationMessage = getViolationMessage(violations);
+
+            assertFalse(violations.isEmpty());
+            assertEquals(expectedViolationMessage, actualViolationMessage);
+        }
+
+        @Test
+        @DisplayName("Validation fails when password has only whitespaces")
+        void WhenPasswordIsOnlyWhitespaces_ThenValidationFails() {
+            underTest = new RegisterRequestDTO("valid", "   ");
+
+            violations = validate(underTest);
+            String expectedViolationMessage = "Password must be minimum 4 and maximum 10 characters long";
+            String actualViolationMessage = getViolationMessage(violations);
+
+            assertFalse(violations.isEmpty());
+            assertEquals(expectedViolationMessage, actualViolationMessage);
+        }
+
+        @Test
+        @DisplayName("Validation fails when password is empty")
+        void WhenPasswordIsEmpty_ThenValidationFails() {
+            underTest = new RegisterRequestDTO("userName", "");
+
+            violations = validate(underTest);
+            String expectedViolationMessage = "Password must be minimum 4 and maximum 10 characters long";
+            String actualViolationMessage = getViolationMessage(violations);
+
+            assertFalse(violations.isEmpty());
+            assertEquals(expectedViolationMessage, actualViolationMessage);
+        }
     }
 
     private Set<ConstraintViolation<RegisterRequestDTO>> validate(RegisterRequestDTO underTest) {
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         return validator.validate(underTest);
+    }
+
+    private String getViolationMessage(Set<ConstraintViolation<RegisterRequestDTO>> violations) {
+        return violations.iterator().next().getMessage();
     }
 }
