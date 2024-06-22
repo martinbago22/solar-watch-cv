@@ -1,5 +1,6 @@
 package com.codecool.solarwatch.service;
 
+import com.codecool.solarwatch.api.weather.current_weather_response.CurrentWeatherResponse;
 import com.codecool.solarwatch.exception.InvalidDateException;
 import com.codecool.solarwatch.model.Coordinates;
 import com.codecool.solarwatch.model.SolarResultDetails;
@@ -36,6 +37,18 @@ public class CurrentWeatherFetcher {
                 converToLocalTime(solarResultDetails.sunset()),
                 city);
         return sunriseSunsetInfo;
+    }
+
+    public CurrentWeatherResponse fetchCurrentWeatherResponse(Coordinates coordinates) {
+        String url = String.format("https://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s&appid=%s",
+                coordinates.latitude(), coordinates.longitude(), System.getenv("API_KEY"));
+
+        return this.webClient
+                .get()
+                .uri(url)
+                .retrieve()
+                .bodyToMono(CurrentWeatherResponse.class)
+                .block();
     }
 
     private SolarResultDetails getSolarResultDetails(Coordinates coordinates, String date) {
