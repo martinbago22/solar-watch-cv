@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 import static com.codecool.solarwatch.util.Utility.converToLocalTime;
 
@@ -17,14 +18,12 @@ import static com.codecool.solarwatch.util.Utility.converToLocalTime;
 public class CurrentWeatherFetcher {
     private static final String API = System.getenv("API_KEY");
     private final WebClient webClient;
-    private final GeoCodeService geoCodeService;
 
-    public CurrentWeatherFetcher(WebClient webClient, GeoCodeService geoCodeService) {
+    public CurrentWeatherFetcher(WebClient webClient) {
         this.webClient = webClient;
-        this.geoCodeService = geoCodeService;
     }
 
-    private SunriseSunsetInfo fetchSunriseSunsetInfo(City city, LocalDate date) {
+    public SunriseSunsetInfo fetchSunriseSunsetInfo(City city, LocalDate date) {
         SunriseSunsetInfo sunriseSunsetInfo;
 
         Coordinates coordinates = new Coordinates(city.getLatitude(),
@@ -56,4 +55,32 @@ public class CurrentWeatherFetcher {
         WeatherReport weatherReport = getWeatherReportFrom(url);
         return getSolarResultDetailsFrom(weatherReport);
     }
+
+    private boolean isDateProvided(String date) {
+        return date != null && !date.trim().isEmpty();
+    }
+
+    private boolean isDateCorrectFormat(String date) {
+        try {
+            LocalDate localDate = LocalDate.parse(date);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
+    private WeatherReport getWeatherReportFrom(String url) {
+        return this.webClient.get()
+                .uri(url)
+                .retrieve()
+                .bodyToMono(WeatherReport.class)
+                .block();
+    }
+
+    private SolarResultDetails getSolarResultDetailsFrom(WeatherReport weatherReport) {
+        return new SolarResultDetails(weatherReport.results().sunrise(),
+                weatherReport.results().sunset(),
+                weatherReport.results().date());
+    }
+
 }
