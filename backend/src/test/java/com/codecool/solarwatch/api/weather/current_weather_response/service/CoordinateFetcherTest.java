@@ -26,13 +26,13 @@ class CoordinateFetcherTest {
     void WhenCityNameIsValid_ThenProperCoordinatesGetFetched() {
         String cityName = "Budapest";
         Coordinates expected = new Coordinates(12, 12, "asd", "asd");
-        Mono<Coordinates[]> mono = Mono.just(new Coordinates[]{expected});
+        Mono<Coordinates> mono = Mono.just(expected);
 
 
-        when(webClient.get().uri(any(String.class)).retrieve().bodyToMono(Coordinates[].class).block())
+        when(webClient.get().uri(any(String.class)).retrieve().bodyToMono(Coordinates.class))
                 .thenReturn(mono);
-        Coordinates[] actual = coordinateFetcher.getCoordinatesForCity(cityName);
+        Coordinates actual = coordinateFetcher.getCoordinatesForCity(cityName);
 
-        assertEquals(expected, actual[0]);
+        assertEquals(expected, actual);
     }
 }

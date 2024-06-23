@@ -14,9 +14,9 @@ public class GeoCodeService {
     }
 
     public Coordinates getCoordinatesFromCity(String city) {
-        Coordinates[] cities = coordinateFetcher.getCoordinatesForCity(city);
-        if (cities != null && cities.length > 0) {
-            return cities[0];
+        Coordinates coordinates = coordinateFetcher.getCoordinatesForCity(city);
+        if (coordinates != null) {
+            return coordinates;
         } else {
             throw new InvalidCityException(city);
         }
