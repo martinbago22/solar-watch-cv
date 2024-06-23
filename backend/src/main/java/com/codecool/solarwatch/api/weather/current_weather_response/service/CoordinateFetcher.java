@@ -1,4 +1,4 @@
-package com.codecool.solarwatch.service;
+package com.codecool.solarwatch.api.weather.current_weather_response.service;
 
 import com.codecool.solarwatch.model.Coordinates;
 import org.springframework.stereotype.Component;

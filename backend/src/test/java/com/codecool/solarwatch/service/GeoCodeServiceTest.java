@@ -1,5 +1,6 @@
 package com.codecool.solarwatch.service;
 
+import com.codecool.solarwatch.api.weather.current_weather_response.service.CoordinateFetcher;
 import com.codecool.solarwatch.exception.InvalidCityException;
 import com.codecool.solarwatch.model.Coordinates;
 import org.junit.jupiter.api.Test;

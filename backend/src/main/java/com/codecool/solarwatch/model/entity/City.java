@@ -1,5 +1,6 @@
 package com.codecool.solarwatch.model.entity;
 
+import com.codecool.solarwatch.model.Coordinates;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -35,7 +36,16 @@ public class City {
         this.country = country;
     }
 
+    public City(String cityName, Coordinates coordinates) {
+        this.name = cityName;
+        this.longitude = coordinates.longitude();
+        this.latitude = coordinates.latitude();
+        this.state = coordinates.state();
+        this.country = coordinates.country();
+    }
+
     public City() {
+
     }
 
     @Override

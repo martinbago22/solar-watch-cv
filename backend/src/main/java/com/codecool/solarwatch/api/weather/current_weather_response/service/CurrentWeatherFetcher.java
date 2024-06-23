@@ -1,6 +1,6 @@
-package com.codecool.solarwatch.service;
+package com.codecool.solarwatch.api.weather.current_weather_response.service;
 
-import com.codecool.solarwatch.api.weather.current_weather_response.CurrentWeatherResponse;
+import com.codecool.solarwatch.api.weather.current_weather_response.model.CurrentWeatherResponse;
 import com.codecool.solarwatch.exception.InvalidDateException;
 import com.codecool.solarwatch.model.Coordinates;
 import com.codecool.solarwatch.model.SolarResultDetails;

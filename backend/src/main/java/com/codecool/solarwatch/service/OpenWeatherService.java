@@ -1,6 +1,7 @@
 package com.codecool.solarwatch.service;
 
-import com.codecool.solarwatch.api.weather.current_weather_response.CurrentWeatherResponse;
+import com.codecool.solarwatch.api.weather.current_weather_response.model.CurrentWeatherResponse;
+import com.codecool.solarwatch.api.weather.current_weather_response.service.CurrentWeatherFetcher;
 import com.codecool.solarwatch.exception.InvalidCityException;
 import com.codecool.solarwatch.exception.InvalidDateException;
 import com.codecool.solarwatch.exception.NotSupportedCityException;
@@ -87,10 +88,7 @@ public class OpenWeatherService {
     private City createCityEntityIfNotInDatabase(String cityName) {
         Coordinates coordinates = this.geoCodeService.getCoordinatesFromCity(cityName);
         City city = new City(cityName,
-                coordinates.longitude(),
-                coordinates.latitude(),
-                coordinates.state(),
-                coordinates.country());
+                coordinates);
         LOGGER.info(String.format("%s successfully saved to DB", city));
         return this.cityRepository.save(city);
     }
