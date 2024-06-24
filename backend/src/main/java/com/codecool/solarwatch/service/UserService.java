@@ -65,7 +65,7 @@ public class UserService {
             copiedRoles.add(adminRole);
             user.setRoles(copiedRoles);
             userRepository.save(user);
-            LOGGER.info(String.format("ROLE: [Admin] has been added to USER: [%s]", user));
+            LOGGER.info(String.format("ROLE: [Admin] has been added to USER: [%s]", userName));
             return true;
         } else {
             LOGGER.error(String.format("USER: [%s] already has Admin role", user));
