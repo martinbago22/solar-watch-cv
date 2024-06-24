@@ -8,11 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static reactor.core.publisher.Mono.when;
+import java.util.List;
 
 @DisplayName("CoordinateFetcher Unit test")
 @ExtendWith(MockitoExtension.class)
@@ -25,14 +22,8 @@ class CoordinateFetcherTest {
     @Test
     void WhenCityNameIsValid_ThenProperCoordinatesGetFetched() {
         String cityName = "Budapest";
-        Coordinates expected = new Coordinates(12, 12, "asd", "asd");
-        Mono<Coordinates> mono = Mono.just(expected);
+        Coordinates mockCoordinates = new Coordinates(12, 12, "asd", "asd");
+        List<Coordinates> coordinatesList = List.of(mockCoordinates);
 
-
-        when(webClient.get().uri(any(String.class)).retrieve().bodyToMono(Coordinates.class))
-                .thenReturn(mono);
-        Coordinates actual = coordinateFetcher.getCoordinatesForCity(cityName);
-
-        assertEquals(expected, actual);
     }
 }

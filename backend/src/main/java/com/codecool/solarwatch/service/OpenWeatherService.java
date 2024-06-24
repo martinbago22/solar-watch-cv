@@ -12,6 +12,7 @@ import com.codecool.solarwatch.model.entity.City;
 import com.codecool.solarwatch.model.entity.SunriseSunsetInfo;
 import com.codecool.solarwatch.repository.CityRepository;
 import com.codecool.solarwatch.repository.SunriseSunsetRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,7 @@ public class OpenWeatherService {
     private final SunriseSunsetRepository sunriseSunsetRepository;
     private final GeoCodeService geoCodeService;
     private final CurrentWeatherFetcher currentWeatherFetcher;
+    private static final Logger logger = LoggerFactory.getLogger(OpenWeatherService.class);
 
     @Autowired
     public OpenWeatherService(CityRepository cityRepository,
@@ -44,6 +46,19 @@ public class OpenWeatherService {
         this.currentWeatherFetcher = currentWeatherFetcher;
     }
 
+    public SunriseSunsetInfo getSunriseSunsetInfo(String cityName, String date) {
+        LocalDate parsedDate = handleDateParameter(date);
+        City city = getCityFromDatabaseOrFetch(cityName);
+        SunriseSunsetInfo sunriseSunsetInfo;
+        try {
+            sunriseSunsetInfo = getSunriseSunsetInfoByCityAndDate(city, parsedDate);
+        } catch (SunriseSunsetNotFoundException e) {
+            sunriseSunsetInfo = currentWeatherFetcher.fetchSunriseSunsetInfo(city, parsedDate);
+            logger.error(e.getMessage());
+        }
+        return sunriseSunsetInfo;
+    }
+
     private City getCityByName(String cityName) {
         return cityRepository
                 .findByName(cityName)
@@ -54,12 +69,6 @@ public class OpenWeatherService {
         return this.sunriseSunsetRepository
                 .getSunriseSunsetByCityAndDate(city, date)
                 .orElseThrow(() -> new SunriseSunsetNotFoundException(city, date));
-    }
-
-    public SunriseSunsetInfo getSunriseSunsetInfo(String cityName, String date) {
-        LocalDate parsedDate = handleDateParameter(date);
-        City city = getCityFromDatabaseOrFetch(cityName);
-        return currentWeatherFetcher.fetchSunriseSunsetInfo(city, parsedDate);
     }
 
     private LocalDate handleDateParameter(String date) {
