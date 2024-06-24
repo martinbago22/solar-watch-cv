@@ -28,8 +28,6 @@
     </a>
 </p>
 
-<hr>
-
 ##  Quick Links
 
 > - [ Overview](#-overview)
