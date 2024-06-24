@@ -2,7 +2,6 @@ package com.codecool.solarwatch.service;
 
 import com.codecool.solarwatch.exception.UserAlreadyExistsException;
 import com.codecool.solarwatch.model.dto.RegisterRequestDTO;
-import com.codecool.solarwatch.model.entity.Role;
 import com.codecool.solarwatch.model.entity.RoleEntity;
 import com.codecool.solarwatch.model.entity.UserEntity;
 import com.codecool.solarwatch.repository.RoleRepository;
@@ -38,6 +37,7 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder encoder;
     private final JwtUtils jwtUtils;
+
     @Autowired
     public UserService(UserRepository userRepository, RoleRepository roleRepository, AuthenticationManager authenticationManager, PasswordEncoder encoder, JwtUtils jwtUtils) {
         this.userRepository = userRepository;
@@ -48,32 +48,29 @@ public class UserService {
     }
 
     @Transactional
-    public boolean createUser(@NonNull RegisterRequestDTO registerRequestDTORequest) {
-        return attemptToCreateUser(registerRequestDTORequest);
+    public boolean createUser(@NonNull RegisterRequestDTO registerRequestDTO) {
+        if (registerRequestDTO == null) {
+            throw new IllegalArgumentException("registerRequestDTO cannot be null");
+        }
+        return attemptToCreateUser(registerRequestDTO);
     }
 
     @Transactional
-    public boolean addRoleFor(UserEntity user, Role role) {
+    public boolean grantAdminTo(@NonNull String userName) {
+        UserEntity user = getUserBy(userName);
         Set<RoleEntity> oldRoles = user.getRoles();
-        RoleEntity roleToBeAdded = getRoleEntityBy(role);
-        if (!oldRoles.contains(roleToBeAdded)) {
+        RoleEntity adminRole = new RoleEntity(ROLE_ADMIN);
+        if (!oldRoles.contains(adminRole)) {
             Set<RoleEntity> copiedRoles = new HashSet<>(oldRoles);
-            copiedRoles.add(roleToBeAdded);
+            copiedRoles.add(adminRole);
             user.setRoles(copiedRoles);
             userRepository.save(user);
-            LOGGER.info(String.format("ROLE: [%s] has been added to USER: [%s]", role, user));
+            LOGGER.info(String.format("ROLE: [Admin] has been added to USER: [%s]", userName));
             return true;
         } else {
-            LOGGER.error(String.format("USER: [%s] already has existing ROLE: [%s]", user, role));
+            LOGGER.error(String.format("USER: [%s] already has Admin role", user));
             return false;
         }
-    }
-
-    @Transactional
-    public boolean grantAdminPrivilegesFor(String userName) {
-        UserEntity user = getUserBy(userName);
-        LOGGER.info(String.format("Admin privileges granted for user %s%n", user.getUsername()));
-        return addRoleFor(user, ROLE_ADMIN);
     }
 
     //TODO mit küldünk itt vissza? String jwtToken? boolean? hol adjuk hozzá a role-t hogy a loginelt user már user roleban van?
@@ -98,13 +95,9 @@ public class UserService {
     }
 
     private UserEntity getUserBy(String userName) {
+        LOGGER.error(String.format("USER: [%s] was not found or doesn't exist", userName));
         return this.userRepository.findUserEntityByUsername(userName)
                 .orElseThrow(() -> new UsernameNotFoundException(String.format("Couldn't find user named [ %s ]", userName)));
-    }
-
-    private RoleEntity getRoleEntityBy(Role role) {
-        return this.roleRepository.getRoleEntityByRole(role)
-                .orElseThrow(() -> new RuntimeException("Role not found"));
     }
 
     private void userAlreadyExists(String userName) {
@@ -114,7 +107,7 @@ public class UserService {
         }
     }
 
-    private boolean attemptToCreateUser(RegisterRequestDTO registerRequestDTORequest) {
+    private boolean attemptToCreateUser(@NonNull RegisterRequestDTO registerRequestDTORequest) {
         userAlreadyExists(registerRequestDTORequest.username());
 
         String hashedPassword = encoder.encode(registerRequestDTORequest.password());

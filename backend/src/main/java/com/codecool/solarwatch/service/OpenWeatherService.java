@@ -1,24 +1,23 @@
 package com.codecool.solarwatch.service;
 
+import com.codecool.solarwatch.api.weather.current_weather_response.model.CurrentWeatherResponse;
+import com.codecool.solarwatch.api.weather.current_weather_response.service.CurrentWeatherFetcher;
 import com.codecool.solarwatch.exception.InvalidCityException;
 import com.codecool.solarwatch.exception.InvalidDateException;
 import com.codecool.solarwatch.exception.NotSupportedCityException;
 import com.codecool.solarwatch.exception.SunriseSunsetNotFoundException;
 import com.codecool.solarwatch.model.Coordinates;
-import com.codecool.solarwatch.model.SolarResultDetails;
-import com.codecool.solarwatch.model.WeatherReport;
-import com.codecool.solarwatch.api.weather.current_weather_response.CurrentWeatherResponse;
 import com.codecool.solarwatch.model.dto.CurrentWeatherInfoDTO;
 import com.codecool.solarwatch.model.entity.City;
 import com.codecool.solarwatch.model.entity.SunriseSunsetInfo;
 import com.codecool.solarwatch.repository.CityRepository;
 import com.codecool.solarwatch.repository.SunriseSunsetRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -29,22 +28,35 @@ import static com.codecool.solarwatch.util.Utility.*;
 
 @Service
 public class OpenWeatherService {
-    private static final String API = "https://api.sunrise-sunset.org/json?";
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenWeatherService.class);
-    private final WebClient webClient;
     private final CityRepository cityRepository;
     private final SunriseSunsetRepository sunriseSunsetRepository;
     private final GeoCodeService geoCodeService;
+    private final CurrentWeatherFetcher currentWeatherFetcher;
+    private static final Logger logger = LoggerFactory.getLogger(OpenWeatherService.class);
 
     @Autowired
-    public OpenWeatherService(WebClient webClient,
-                              CityRepository cityRepository,
+    public OpenWeatherService(CityRepository cityRepository,
                               SunriseSunsetRepository sunriseSunsetRepository,
-                              GeoCodeService geoCodeService) {
-        this.webClient = webClient;
+                              GeoCodeService geoCodeService,
+                              CurrentWeatherFetcher currentWeatherFetcher) {
         this.cityRepository = cityRepository;
         this.sunriseSunsetRepository = sunriseSunsetRepository;
         this.geoCodeService = geoCodeService;
+        this.currentWeatherFetcher = currentWeatherFetcher;
+    }
+
+    public SunriseSunsetInfo getSunriseSunsetInfo(String cityName, String date) {
+        LocalDate parsedDate = handleDateParameter(date);
+        City city = getCityFromDatabaseOrFetch(cityName);
+        SunriseSunsetInfo sunriseSunsetInfo;
+        try {
+            sunriseSunsetInfo = getSunriseSunsetInfoByCityAndDate(city, parsedDate);
+        } catch (SunriseSunsetNotFoundException e) {
+            sunriseSunsetInfo = currentWeatherFetcher.fetchSunriseSunsetInfo(city, parsedDate);
+            logger.error(e.getMessage());
+        }
+        return sunriseSunsetInfo;
     }
 
     private City getCityByName(String cityName) {
@@ -57,31 +69,6 @@ public class OpenWeatherService {
         return this.sunriseSunsetRepository
                 .getSunriseSunsetByCityAndDate(city, date)
                 .orElseThrow(() -> new SunriseSunsetNotFoundException(city, date));
-    }
-
-    public SunriseSunsetInfo getSunriseSunsetInfo(String cityName, String date) {
-        LocalDate parsedDate = handleDateParameter(date);
-        City city = getCityFromDatabaseOrFetch(cityName);
-        return getSunriseSunsetInfoFromDataBaseOrFetch(city, parsedDate);
-    }
-
-    private SunriseSunsetInfo getSunriseSunsetInfoFromDataBaseOrFetch(City city, LocalDate date) {
-        SunriseSunsetInfo sunriseSunsetInfo;
-        try {
-            sunriseSunsetInfo = getSunriseSunsetInfoByCityAndDate(city, date);
-        } catch (SunriseSunsetNotFoundException e) {
-            Coordinates coordinates = new Coordinates(city.getLatitude(),
-                    city.getLongitude(),
-                    city.getCountry(),
-                    city.getState());
-            SolarResultDetails solarResultDetails = getSolarResultDetails(coordinates, date.toString());
-            sunriseSunsetInfo = new SunriseSunsetInfo(date,
-                    converToLocalTime(solarResultDetails.sunrise()),
-                    converToLocalTime(solarResultDetails.sunset()),
-                    city);
-            sunriseSunsetInfo = this.sunriseSunsetRepository.save(sunriseSunsetInfo);
-        }
-        return sunriseSunsetInfo;
     }
 
     private LocalDate handleDateParameter(String date) {
@@ -110,58 +97,9 @@ public class OpenWeatherService {
     private City createCityEntityIfNotInDatabase(String cityName) {
         Coordinates coordinates = this.geoCodeService.getCoordinatesFromCity(cityName);
         City city = new City(cityName,
-                coordinates.longitude(),
-                coordinates.latitude(),
-                coordinates.state(),
-                coordinates.country());
+                coordinates);
         LOGGER.info(String.format("%s successfully saved to DB", city));
         return this.cityRepository.save(city);
-    }
-
-
-    private SolarResultDetails getSolarResultDetails(Coordinates coordinates, String date) {
-        String url;
-        if (isDateProvided(date)) {
-            if (isDateCorrectFormat(date))
-                url = String.format(API + "lat=%s&lng=%s&date=%s",
-                        coordinates.latitude(),
-                        coordinates.longitude(),
-                        date);
-            else {
-                throw new InvalidDateException();
-            }
-        } else {
-            url = String.format(API + "lat=%s&lng=%s", coordinates.latitude(), coordinates.longitude());
-        }
-        WeatherReport weatherReport = getWeatherReportFrom(url);
-        return getSolarResultDetailsFrom(weatherReport);
-    }
-
-    private boolean isDateProvided(String date) {
-        return date != null && !date.trim().isEmpty();
-    }
-
-    private boolean isDateCorrectFormat(String date) {
-        try {
-            LocalDate localDate = LocalDate.parse(date);
-            return true;
-        } catch (DateTimeParseException e) {
-            return false;
-        }
-    }
-
-    private WeatherReport getWeatherReportFrom(String url) {
-        return this.webClient.get()
-                .uri(url)
-                .retrieve()
-                .bodyToMono(WeatherReport.class)
-                .block();
-    }
-
-    private SolarResultDetails getSolarResultDetailsFrom(WeatherReport weatherReport) {
-        return new SolarResultDetails(weatherReport.results().sunrise(),
-                weatherReport.results().sunset(),
-                weatherReport.results().date());
     }
 
 
@@ -195,15 +133,9 @@ public class OpenWeatherService {
 
     public CurrentWeatherResponse getCurrentWeatherResponseFor(String cityName) {
         Coordinates coordinates = this.geoCodeService.getCoordinatesFromCity(cityName);
-        String url = String.format("https://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s&appid=%s",
-                coordinates.latitude(), coordinates.longitude(), System.getenv("API_KEY"));
         if (cityName != null && !cityName.trim().isEmpty()) {
-            return this.webClient
-                    .get()
-                    .uri(url)
-                    .retrieve()
-                    .bodyToMono(CurrentWeatherResponse.class)
-                    .block();
+            return this.currentWeatherFetcher
+                    .fetchCurrentWeatherResponse(coordinates);
         } else {
             throw new InvalidCityException(cityName);
         }

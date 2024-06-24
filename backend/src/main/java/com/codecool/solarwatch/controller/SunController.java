@@ -1,6 +1,6 @@
 package com.codecool.solarwatch.controller;
 
-import com.codecool.solarwatch.api.weather.current_weather_response.CurrentWeatherResponse;
+import com.codecool.solarwatch.api.weather.current_weather_response.model.CurrentWeatherResponse;
 import com.codecool.solarwatch.model.dto.CurrentWeatherInfoDTO;
 import com.codecool.solarwatch.model.dto.SunriseSunsetDTO;
 import com.codecool.solarwatch.service.OpenWeatherService;

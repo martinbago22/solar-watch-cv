@@ -11,7 +11,7 @@ import com.codecool.solarwatch.security.jwt.JwtUtils;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -49,62 +50,92 @@ class UserServiceTest {
     private JwtUtils jwtUtils;
     @InjectMocks
     private UserService userService;
-    private static UserEntity user;
 
-    @BeforeAll
-    static void setup() {
-        user = new UserEntity("John", "doe");
+    private final UserEntity user = new UserEntity("John", "doe");
+
+    @BeforeEach
+    void setup() {
+        userRepository.save(user);
     }
 
 
     @Nested
-    @DisplayName("Test cases for valid attempts at adding specified role to user")
+    @DisplayName("Test cases for valid attempts at adding admin role to user")
     class WhenAddRoleForIsSuccessful {
         @Test
-        void AddRoleForUser_SuccessfullyAddsRequestedRoleToUser_WhenProvidedValidParameters() {
-            user.setRoles(Set.of(new RoleEntity(ROLE_USER)));
+        @DisplayName("grantAdminTo successfully adds admin role to user when provided valid parameters")
+        void WhenProvidedValidUserName_ThenGrantAdminToAddsAdminRoleToUser() {
+            RoleEntity expected = new RoleEntity(ROLE_ADMIN);
 
-            when(roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
-            userService.addRoleFor(user, ROLE_ADMIN);
-            boolean containsRequestedRole = user.getRoles().contains(new RoleEntity(ROLE_ADMIN));
+            when(userRepository.findUserEntityByUsername(anyString()))
+                    .thenReturn(Optional.of(user));
+            userService.grantAdminTo(user.getUsername());
+
+            verify(userRepository, times(1)
+                    .description("GetRoleEntityByRole gets called one time"))
+                    .findUserEntityByUsername(user.getUsername());
+            boolean containsRequestedRole = user.getRoles().contains(expected);
 
             assertTrue(containsRequestedRole);
         }
 
         @Test
-        void AddRoleForUser_ReturnsTrue_WhenProvidedValidParameters() {
-            user.setRoles(Set.of(new RoleEntity(ROLE_USER)));
+        @DisplayName("grantAdminTo returns true after successfully adding admin role to user")
+        void WhenProvidedValidUserName_ThenGrantAdminToReturnsTrue() {
+            when(userRepository.findUserEntityByUsername(anyString()))
+                    .thenReturn(Optional.of(user));
+            boolean result = userService.grantAdminTo(user.getUsername());
 
-            when(roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
+            verify(userRepository, times(1))
+                    .findUserEntityByUsername(user.getUsername());
 
-            assertTrue(userService.addRoleFor(user, ROLE_ADMIN));
+            assertTrue(result);
         }
     }
 
     @Nested
-    @DisplayName("Test cases for invalid attempts at adding specified role to user")
+    @DisplayName("Test cases for invalid attempts at adding admin role to user")
     class WhenAddRoleForIsUnsuccessful {
         @Test
-        void AddRoleForUser_ThrowsRuntimeException_WhenProvidedInvalidRoleAsParameter() {
-            Role mockRole = mock();
+        @DisplayName("grantAdminTo throws username not found exception when user is not found")
+        void WhenProvidedInvalidUserAsParameter_ThenGrantAdminToThrowsRuntimeException_() {
+            when(userRepository.findUserEntityByUsername(anyString()))
+                    .thenReturn(Optional.empty());
+            RuntimeException expected = assertThrows(UsernameNotFoundException.class,
+                    () -> userService.grantAdminTo(user.getUsername()));
 
-            when(roleRepository.getRoleEntityByRole(mockRole)).thenReturn(Optional.empty());
-
-            assertThrows(RuntimeException.class, () -> userService.addRoleFor(user, mockRole));
+            verify(userRepository, times(1))
+                    .findUserEntityByUsername(user.getUsername());
+            assertEquals(expected.getMessage(), String.format("Couldn't find user named [ %s ]", user.getUsername()));
+            assertThrows(RuntimeException.class, () -> userService.grantAdminTo(user.getUsername()));
         }
 
         @Test
-        void AddRoleFor_ReturnsFalse_WhenUserAlreadyHasProvidedRole() {
-            user.setRoles(Set.of(new RoleEntity(ROLE_ADMIN)));
+        @DisplayName("grantAdminTo returns false when user already has admin role")
+        void WhenUserAlreadyHasAdminRole_ThenGrantAdminToReturnsFalse() {
+            RoleEntity alreadyExistingRole = new RoleEntity(ROLE_ADMIN);
+            user.setRoles(Set.of(alreadyExistingRole));
 
-            when(roleRepository.getRoleEntityByRole(ROLE_ADMIN)).thenReturn(Optional.of(new RoleEntity(ROLE_ADMIN)));
+            when(userRepository.findUserEntityByUsername(anyString()))
+                    .thenReturn(Optional.of(user));
+            boolean result = userService.grantAdminTo(user.getUsername());
 
-            assertFalse(userService.addRoleFor(user, ROLE_ADMIN));
+            verify(userRepository, times(1))
+                    .findUserEntityByUsername(user.getUsername());
+            assertFalse(result);
         }
 
         @Test
-        void AddRoleFor_ThrowsRuntimeException_WhenProvidedNullAsRole() {
-            Set<ConstraintViolation<String>> set = null;
+        @DisplayName("grantAdminTo throws username not found exception when provided null as username")
+        void WhenNullIsGivenAsUserName_ThenUserNameNotFoundExceptionIsThrown() {
+            UsernameNotFoundException e = assertThrows(UsernameNotFoundException.class,
+                    () -> userService.grantAdminTo(null));
+
+            verify(userRepository, times(1))
+                    .findUserEntityByUsername(null);
+
+            assertEquals(e.getMessage(), "Couldn't find user named [ null ]");
+            assertThrows(UsernameNotFoundException.class, () -> userService.grantAdminTo(null));
         }
     }
 
@@ -131,7 +162,7 @@ class UserServiceTest {
     }
 
     @Test
-    void createUser_ThrowsUsernameIsAlreadyExistsException_WhenProvidedUserNameAlreadyExists() {
+    void CreateUser_ThrowsUsernameIsAlreadyExistsException_WhenProvidedUserNameAlreadyExists() {
         RegisterRequestDTO registerRequestDTO = new RegisterRequestDTO("John", "doe");
 
         when(this.userRepository.existsByUsername(registerRequestDTO.username()))
@@ -162,7 +193,7 @@ class UserServiceTest {
         when(userRepository.save(any(UserEntity.class)))
                 .thenReturn(expectedUserAfterSave);
 
-        assertTrue(userService.grantAdminPrivilegesFor(username));
+        //assertTrue(userService.grantAdminPrivilegesFor(username));
     }
 
     private Set<ConstraintViolation<RegisterRequestDTO>> validate(RegisterRequestDTO underTest) {

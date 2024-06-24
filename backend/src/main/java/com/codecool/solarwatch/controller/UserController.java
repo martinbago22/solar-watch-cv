@@ -36,7 +36,7 @@ public class UserController {
 
     @GetMapping("getAdmin")
     public ResponseEntity<HttpStatusCode> grantAdmin(@RequestParam String userName) {
-        this.userService.grantAdminPrivilegesFor(userName);
+        this.userService.grantAdminTo(userName);
         return ResponseEntity.ok().build();
     }
 }
