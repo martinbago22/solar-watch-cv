@@ -13,6 +13,7 @@ public class RoleEntity {
     @Column(unique = true)
     private long id;
     @Enumerated(EnumType.STRING)
+    @Column(unique = true)
     private Role role;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<UserEntity> user;
