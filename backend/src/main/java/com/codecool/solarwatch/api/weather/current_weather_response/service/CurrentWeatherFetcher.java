@@ -20,6 +20,7 @@ public class CurrentWeatherFetcher {
     private static final String API = System.getenv("API_KEY");
     private final WebClient webClient;
 
+
     public CurrentWeatherFetcher(WebClient webClient) {
         this.webClient = webClient;
     }
