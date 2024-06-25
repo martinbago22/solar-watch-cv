@@ -4,10 +4,6 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 
 public class Utility {
-    public static LocalDate parseToLocalDate(String date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        return LocalDate.parse(date, formatter);
-    }
 
     public static LocalTime converToLocalTime(String time) {
         int WRONG_TIME_FORMAT_LENGTH = 10;

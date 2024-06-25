@@ -23,7 +23,7 @@ public class SunController {
     }
 
     @GetMapping("/suninfo")
-    public ResponseEntity<SunriseSunsetDTO> getSunReport(@RequestParam(required = false) String date, @RequestParam(defaultValue = "Budapest") String city) {
+    public ResponseEntity<SunriseSunsetDTO> getSunReport(@RequestParam String date, @RequestParam(defaultValue = "Budapest") String city) {
         //TODO Logging
         SunriseSunsetDTO sunriseSunsetDTO = new SunriseSunsetDTO(openWeatherService.getSunriseSunsetInfo(city, date));
         return ResponseEntity.ok(sunriseSunsetDTO);

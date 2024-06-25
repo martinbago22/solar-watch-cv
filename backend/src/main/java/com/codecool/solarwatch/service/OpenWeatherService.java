@@ -73,16 +73,15 @@ public class OpenWeatherService {
                 .orElseThrow(() -> new SunriseSunsetNotFoundException(city, date));
     }
 
-    private LocalDate handleDateParameter(String date) {
-        if (date != null) {
-            LocalDate requestedDate;
-            try {
-                requestedDate = parseToLocalDate(date);
-            } catch (DateTimeParseException e) {
-                throw new InvalidDateException();
-            }
-            return requestedDate;
-        } else return LocalDate.now();
+    private  LocalDate handleDateParameter(String date) {
+        if (date == null || date.isEmpty()) {
+            throw new InvalidDateException("date cannot be null or empty");
+        }
+        try {
+            return LocalDate.parse(date);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidDateException();
+        }
     }
 
     private City getCityFromDatabaseOrFetch(String cityName) {
@@ -152,8 +151,8 @@ public class OpenWeatherService {
                 currentWeatherResponse.currentWeatherDescription()[0].description(),
                 currentWeatherResponse.visibility(),
                 provideWarningMessageAboutCloudyWeather(currentWeatherResponse),
-                "asd",
-                "qwe");
+                currentWeatherResponse.currentWeatherAPISunriseSunsetTime().sunriseUnixUTC(),
+                currentWeatherResponse.currentWeatherAPISunriseSunsetTime().sunsetUnixUTC());
     }
 
     private String provideWarningMessageAboutCloudyWeather(CurrentWeatherResponse currentWeatherResponse) {
