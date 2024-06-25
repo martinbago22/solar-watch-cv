@@ -189,7 +189,7 @@ class UserServiceTest {
     class WhenCreateUserIsUnsuccessful {
         @Test
         @DisplayName("createUser throws illegal argument exception when given null as register request")
-        void CreateUser_ThrowsIllegalArgumentException_WhenProvidedNullAsParameter() {
+        void WhenProvidedNullAsParameter_ThenCreateUserThrowsIllegalArgumentException_() {
             IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> userService.createUser(null));
             String expectedMessage = "registerRequestDTO cannot be null";
             String actualMessage = e.getMessage();
@@ -200,7 +200,8 @@ class UserServiceTest {
         }
 
         @Test
-        void CreateUser_ThrowsUsernameIsAlreadyExistsException_WhenProvidedUserNameAlreadyExists() {
+        void WhenProvidedAlreadyExistingUserName_ThenCreateUserThrowsUserNameAlreadyExistsException() {
+
             RegisterRequestDTO sameNameRegisterAttempt = new RegisterRequestDTO("John", "doe");
             when(userRepository.existsByUsername(sameNameRegisterAttempt.username()))
                     .thenReturn(true);

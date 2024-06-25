@@ -56,24 +56,6 @@ public class UserService {
         return attemptToCreateUser(registerRequestDTO);
     }
 
-    @Transactional
-    public boolean grantAdminTo(@NonNull String userName) {
-        UserEntity user = getUserBy(userName);
-        Set<RoleEntity> oldRoles = user.getRoles();
-        RoleEntity adminRole = new RoleEntity(ROLE_ADMIN);
-        if (!oldRoles.contains(adminRole)) {
-            Set<RoleEntity> copiedRoles = new HashSet<>(oldRoles);
-            copiedRoles.add(adminRole);
-            user.setRoles(copiedRoles);
-            userRepository.save(user);
-            LOGGER.info(String.format("ROLE: [Admin] has been added to USER: [%s]", userName));
-            return true;
-        } else {
-            LOGGER.error(String.format("USER: [%s] already has Admin role", user));
-            return false;
-        }
-    }
-
     //TODO mit küldünk itt vissza? String jwtToken? boolean? hol adjuk hozzá a role-t hogy a loginelt user már user roleban van?
     @Transactional
     public String login(RegisterRequestDTO registerRequestDTORequest) {
@@ -93,6 +75,24 @@ public class UserService {
             LOGGER.error(e.getMessage());
         }
         return jwt;
+    }
+
+    @Transactional
+    public boolean grantAdminTo(@NonNull String userName) {
+        UserEntity user = getUserBy(userName);
+        Set<RoleEntity> oldRoles = user.getRoles();
+        RoleEntity adminRole = new RoleEntity(ROLE_ADMIN);
+        if (!oldRoles.contains(adminRole)) {
+            Set<RoleEntity> copiedRoles = new HashSet<>(oldRoles);
+            copiedRoles.add(adminRole);
+            user.setRoles(copiedRoles);
+            userRepository.save(user);
+            LOGGER.info(String.format("ROLE: [Admin] has been added to USER: [%s]", userName));
+            return true;
+        } else {
+            LOGGER.error(String.format("USER: [%s] already has Admin role", user));
+            return false;
+        }
     }
 
     private UserEntity getUserBy(String userName) {
