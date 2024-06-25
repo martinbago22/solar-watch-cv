@@ -33,7 +33,6 @@ public class OpenWeatherService {
     private final SunriseSunsetRepository sunriseSunsetRepository;
     private final GeoCodeService geoCodeService;
     private final CurrentWeatherFetcher currentWeatherFetcher;
-    private static final Logger logger = LoggerFactory.getLogger(OpenWeatherService.class);
 
     @Autowired
     public OpenWeatherService(CityRepository cityRepository,
@@ -53,8 +52,11 @@ public class OpenWeatherService {
         try {
             sunriseSunsetInfo = getSunriseSunsetInfoByCityAndDate(city, parsedDate);
         } catch (SunriseSunsetNotFoundException e) {
+            LOGGER.error(e.getMessage());
+            LOGGER.info("Fetching sunset/sunrise time from api and saving to Database");
             sunriseSunsetInfo = currentWeatherFetcher.fetchSunriseSunsetInfo(city, parsedDate);
-            logger.error(e.getMessage());
+            sunriseSunsetRepository.save(sunriseSunsetInfo);
+
         }
         return sunriseSunsetInfo;
     }

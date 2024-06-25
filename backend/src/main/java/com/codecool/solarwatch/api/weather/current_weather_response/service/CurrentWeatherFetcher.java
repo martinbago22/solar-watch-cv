@@ -17,7 +17,7 @@ import static com.codecool.solarwatch.util.Utility.converToLocalTime;
 
 @Component
 public class CurrentWeatherFetcher {
-    private static final String API = System.getenv("API_KEY");
+    private static final String API_KEY = System.getenv("API_KEY");
     private final WebClient webClient;
 
     public CurrentWeatherFetcher(WebClient webClient) {
@@ -52,10 +52,10 @@ public class CurrentWeatherFetcher {
     }
 
     private SolarResultDetails getSolarResultDetails(Coordinates coordinates, String date) {
-        String url;
+        String url = "https://api.sunrise-sunset.org/json?";
         if (isDateProvided(date)) {
             if (isDateCorrectFormat(date))
-                url = String.format(API + "lat=%s&lng=%s&date=%s",
+                url += String.format("lat=%s&lng=%s&date=%s",
                         coordinates.latitude(),
                         coordinates.longitude(),
                         date);
@@ -63,7 +63,7 @@ public class CurrentWeatherFetcher {
                 throw new InvalidDateException();
             }
         } else {
-            url = String.format(API + "lat=%s&lng=%s", coordinates.latitude(), coordinates.longitude());
+            url = String.format(API_KEY + "lat=%s&lng=%s", coordinates.latitude(), coordinates.longitude());
         }
         WeatherReport weatherReport = getWeatherReportFrom(url);
         return getSolarResultDetailsFrom(weatherReport);
