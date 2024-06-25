@@ -79,7 +79,7 @@ public class OpenWeatherService {
         }
         try {
             return LocalDate.parse(date);
-        } catch (IllegalArgumentException e) {
+        } catch (DateTimeParseException e) {
             throw new InvalidDateException();
         }
     }

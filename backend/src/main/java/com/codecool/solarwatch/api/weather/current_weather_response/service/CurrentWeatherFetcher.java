@@ -53,24 +53,16 @@ public class CurrentWeatherFetcher {
 
     private SolarResultDetails getSolarResultDetails(Coordinates coordinates, String date) {
         String url = "https://api.sunrise-sunset.org/json?";
-        if (isDateProvided(date)) {
-            if (isDateCorrectFormat(date))
-                url += String.format("lat=%s&lng=%s&date=%s",
-                        coordinates.latitude(),
-                        coordinates.longitude(),
-                        date);
-            else {
-                throw new InvalidDateException();
-            }
-        } else {
-            url = String.format(API_KEY + "lat=%s&lng=%s", coordinates.latitude(), coordinates.longitude());
+        if (isDateCorrectFormat(date))
+            url += String.format("lat=%s&lng=%s&date=%s&tzid=Europe/Budapest",
+                    coordinates.latitude(),
+                    coordinates.longitude(),
+                    date);
+        else {
+            throw new InvalidDateException();
         }
         WeatherReport weatherReport = getWeatherReportFrom(url);
         return getSolarResultDetailsFrom(weatherReport);
-    }
-
-    private boolean isDateProvided(String date) {
-        return date != null && !date.trim().isEmpty();
     }
 
     private boolean isDateCorrectFormat(String date) {
