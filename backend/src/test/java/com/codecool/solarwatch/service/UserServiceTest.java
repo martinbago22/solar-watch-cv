@@ -2,7 +2,6 @@ package com.codecool.solarwatch.service;
 
 import com.codecool.solarwatch.exception.UserAlreadyExistsException;
 import com.codecool.solarwatch.model.dto.RegisterRequestDTO;
-import com.codecool.solarwatch.model.entity.Role;
 import com.codecool.solarwatch.model.entity.RoleEntity;
 import com.codecool.solarwatch.model.entity.UserEntity;
 import com.codecool.solarwatch.repository.RoleRepository;
@@ -52,23 +51,25 @@ class UserServiceTest {
     private UserService userService;
 
     private final UserEntity user = new UserEntity("John", "doe");
+    private final RegisterRequestDTO registerRequestDTO = new RegisterRequestDTO(user.getUsername(), user.getPassword());
 
     @BeforeEach
     void setup() {
-        userRepository.save(user);
+        lenient().when((userRepository.save(any(UserEntity.class)))).thenReturn(user);
+
+        // Mock the findById or findByUsername method to return the user
+        lenient().when(userRepository.findUserEntityByUsername(anyString())).thenReturn(Optional.of(user));
     }
 
 
     @Nested
     @DisplayName("Test cases for valid attempts at adding admin role to user")
-    class WhenAddRoleForIsSuccessful {
+    class WhenGrantAdminToIsSuccessful {
         @Test
         @DisplayName("grantAdminTo successfully adds admin role to user when provided valid parameters")
         void WhenProvidedValidUserName_ThenGrantAdminToAddsAdminRoleToUser() {
             RoleEntity expected = new RoleEntity(ROLE_ADMIN);
-
-            when(userRepository.findUserEntityByUsername(anyString()))
-                    .thenReturn(Optional.of(user));
+            ;
             userService.grantAdminTo(user.getUsername());
 
             verify(userRepository, times(1)
@@ -82,8 +83,6 @@ class UserServiceTest {
         @Test
         @DisplayName("grantAdminTo returns true after successfully adding admin role to user")
         void WhenProvidedValidUserName_ThenGrantAdminToReturnsTrue() {
-            when(userRepository.findUserEntityByUsername(anyString()))
-                    .thenReturn(Optional.of(user));
             boolean result = userService.grantAdminTo(user.getUsername());
 
             verify(userRepository, times(1))
@@ -95,7 +94,7 @@ class UserServiceTest {
 
     @Nested
     @DisplayName("Test cases for invalid attempts at adding admin role to user")
-    class WhenAddRoleForIsUnsuccessful {
+    class WhenGrantAdminToIsUnsuccessful {
         @Test
         @DisplayName("grantAdminTo throws username not found exception when user is not found")
         void WhenProvidedInvalidUserAsParameter_ThenGrantAdminToThrowsRuntimeException_() {
@@ -116,8 +115,6 @@ class UserServiceTest {
             RoleEntity alreadyExistingRole = new RoleEntity(ROLE_ADMIN);
             user.setRoles(Set.of(alreadyExistingRole));
 
-            when(userRepository.findUserEntityByUsername(anyString()))
-                    .thenReturn(Optional.of(user));
             boolean result = userService.grantAdminTo(user.getUsername());
 
             verify(userRepository, times(1))
@@ -139,62 +136,94 @@ class UserServiceTest {
         }
     }
 
-    @Test
-    void CreateUser_ReturnsTrue_WhenProvidedValidParameters() {
-        RegisterRequestDTO registerRequestDTO = new RegisterRequestDTO("qwe", "doe");
-        UserEntity expectedEncodedUser = new UserEntity(registerRequestDTO.username(), "asd");
-        expectedEncodedUser.setRoles(Set.of(new RoleEntity(ROLE_USER)));
+    @Nested
+    @DisplayName("Test cases for successful user creations")
+    class WhenCreateUserIsSuccessful {
+        @Test
+        @DisplayName("createUser returns true with valid register request dto")
+        void WhenGivenValidRegisterRequest_ThenCreateUserReturnsTrue() {
+            RegisterRequestDTO registerRequestDTO = new RegisterRequestDTO("John", "password123");
 
-        userService.createUser(registerRequestDTO);
-        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
-        verify(userRepository, times(1)).save(argumentCaptor.capture());
-        UserEntity actual = argumentCaptor.getValue();
+            when(passwordEncoder.encode(anyString())).thenReturn("encoded");
+            when(roleRepository.getRoleEntityByRole(ROLE_USER)).thenReturn(Optional.of(new RoleEntity(ROLE_USER)));
 
-        System.out.println(expectedEncodedUser);
-        System.out.println(actual);
+            boolean result = userService.createUser(registerRequestDTO);
 
-        assertEquals(expectedEncodedUser, actual);
+            ArgumentCaptor<UserEntity> userCaptor = ArgumentCaptor.forClass(UserEntity.class);
+            verify(userRepository, times(1)).save(userCaptor.capture());
+
+            UserEntity capturedUser = userCaptor.getValue();
+
+            assertEquals("encoded", capturedUser.getPassword());
+            assertEquals("John", capturedUser.getUsername());
+            assertTrue(capturedUser.getRoles().stream().anyMatch(role -> role.getRole() == ROLE_USER));
+            assertTrue(result);
+        }
+
+        @Test
+        @DisplayName("createUser successfully adds role User to registered user")
+        void WhenUserIsCreated_ThenUserRoleIsAdded() {
+            RoleEntity expectedRole = new RoleEntity(ROLE_USER);
+
+            when(passwordEncoder.encode(anyString()))
+                    .thenReturn("encoded");
+            when(roleRepository.getRoleEntityByRole(ROLE_USER))
+                    .thenReturn(Optional.of(expectedRole));
+
+            ArgumentCaptor<UserEntity> userCaptor = ArgumentCaptor.forClass(UserEntity.class);
+            userService.createUser(registerRequestDTO);
+            verify(userRepository).save(userCaptor.capture());
+            UserEntity savedUser = userCaptor.getValue();
+            boolean result = savedUser.getRoles().contains(expectedRole);
+
+
+            assertTrue(result);
+            assertFalse(savedUser.getRoles().isEmpty());
+            assertEquals("John", savedUser.getUsername());
+            assertEquals("encoded", savedUser.getPassword());
+        }
     }
 
-    @Test
-    void CreateUser_ThrowsIllegalArgumentException_WhenProvidedNullAsParameter() {
-        assertThrows(IllegalArgumentException.class, () -> userService.createUser(null));
+    @Nested
+    @DisplayName("Test cases for unsuccessful attempts at creating user")
+    class WhenCreateUserIsUnsuccessful {
+        @Test
+        @DisplayName("createUser throws illegal argument exception when given null as register request")
+        void CreateUser_ThrowsIllegalArgumentException_WhenProvidedNullAsParameter() {
+            IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> userService.createUser(null));
+            String expectedMessage = "registerRequestDTO cannot be null";
+            String actualMessage = e.getMessage();
+
+            verify(userRepository, never()).save(any(UserEntity.class));
+            assertEquals(expectedMessage, actualMessage);
+            assertThrows(IllegalArgumentException.class, () -> userService.createUser(null));
+        }
+
+        @Test
+        void CreateUser_ThrowsUsernameIsAlreadyExistsException_WhenProvidedUserNameAlreadyExists() {
+            RegisterRequestDTO sameNameRegisterAttempt = new RegisterRequestDTO("John", "doe");
+            when(userRepository.existsByUsername(sameNameRegisterAttempt.username()))
+                    .thenReturn(true);
+            UserAlreadyExistsException e = assertThrows(UserAlreadyExistsException.class,
+                    () -> userService.createUser(sameNameRegisterAttempt));
+            String expectedErrorMessage = String.format("Username: [ %s ] is already in use", sameNameRegisterAttempt.username());
+            String actualErrorMessage = e.getMessage();
+
+            when(userRepository.existsByUsername(registerRequestDTO.username()))
+                    .thenReturn(true);
+
+
+            verify(userRepository, never()).save(any(UserEntity.class));
+            assertEquals(expectedErrorMessage, actualErrorMessage);
+            assertTrue(userRepository.existsByUsername(sameNameRegisterAttempt.username()));
+        }
     }
 
-    @Test
-    void CreateUser_ThrowsUsernameIsAlreadyExistsException_WhenProvidedUserNameAlreadyExists() {
-        RegisterRequestDTO registerRequestDTO = new RegisterRequestDTO("John", "doe");
-
-        when(this.userRepository.existsByUsername(registerRequestDTO.username()))
-                .thenReturn(true);
-
-        assertThrows(UserAlreadyExistsException.class, () -> this.userService.createUser(registerRequestDTO));
-        verify(userRepository, never()).save(new UserEntity(registerRequestDTO));
-    }
 
     @Test
     void login() {
     }
 
-    @Test
-    void GrantAdminPrivilegesFor_GrantsAdminRoleForUser_WhenProvidedValidUsername() {
-        String username = "john";
-        UserEntity user = new UserEntity(username, "doe");
-        userRepository.save(user);
-        UserEntity expectedUserAfterSave = mock();
-        expectedUserAfterSave.setRoles(Set.of(new RoleEntity(ROLE_ADMIN)));
-
-        when(userRepository.findUserEntityByUsername(any(String.class)))
-                .thenReturn(Optional.of(user));
-
-        when(roleRepository.getRoleEntityByRole(any(Role.class)))
-                .thenReturn(Optional.of(mock(RoleEntity.class)));
-
-        when(userRepository.save(any(UserEntity.class)))
-                .thenReturn(expectedUserAfterSave);
-
-        //assertTrue(userService.grantAdminPrivilegesFor(username));
-    }
 
     private Set<ConstraintViolation<RegisterRequestDTO>> validate(RegisterRequestDTO underTest) {
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();

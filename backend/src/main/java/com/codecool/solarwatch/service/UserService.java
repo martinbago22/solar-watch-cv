@@ -50,6 +50,7 @@ public class UserService {
     @Transactional
     public boolean createUser(@NonNull RegisterRequestDTO registerRequestDTO) {
         if (registerRequestDTO == null) {
+            LOGGER.error("registerRequestDTO passed in as null");
             throw new IllegalArgumentException("registerRequestDTO cannot be null");
         }
         return attemptToCreateUser(registerRequestDTO);
@@ -95,14 +96,17 @@ public class UserService {
     }
 
     private UserEntity getUserBy(String userName) {
-        LOGGER.error(String.format("USER: [%s] was not found or doesn't exist", userName));
         return this.userRepository.findUserEntityByUsername(userName)
-                .orElseThrow(() -> new UsernameNotFoundException(String.format("Couldn't find user named [ %s ]", userName)));
+                .orElseThrow(() -> {
+                    LOGGER.error(String.format("USER: [%s] was not found or doesn't exist", userName));
+                    return new UsernameNotFoundException(String.format("Couldn't find user named [ %s ]", userName));
+                });
     }
 
     private void userAlreadyExists(String userName) {
         boolean userExists = userRepository.existsByUsername(userName);
         if (userExists) {
+            LOGGER.error("USER: [{}] already exists", userName);
             throw new UserAlreadyExistsException(userName);
         }
     }
@@ -112,7 +116,9 @@ public class UserService {
 
         String hashedPassword = encoder.encode(registerRequestDTORequest.password());
         UserEntity newUser = new UserEntity(registerRequestDTORequest.username(), hashedPassword);
-        newUser.setRoles(Set.of(new RoleEntity(ROLE_USER)));
+        RoleEntity userRole = roleRepository.getRoleEntityByRole(ROLE_USER)
+                .orElse(new RoleEntity(ROLE_USER));
+        newUser.setRoles(Set.of(userRole));
 
         userRepository.save(newUser);
         LOGGER.info("USER: [{}] saved to database", newUser.getUsername());
