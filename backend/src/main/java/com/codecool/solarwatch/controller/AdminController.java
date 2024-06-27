@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/weatherforecast/admin/")
-public class CityController {
+public class AdminController {
     private final SolarWatchService solarWatchService;
 
     @Autowired
-    public CityController(SolarWatchService solarWatchService) {
+    public AdminController(SolarWatchService solarWatchService) {
         this.solarWatchService = solarWatchService;
     }
 
