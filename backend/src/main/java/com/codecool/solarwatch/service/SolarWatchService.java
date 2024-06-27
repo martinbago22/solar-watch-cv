@@ -2,12 +2,12 @@ package com.codecool.solarwatch.service;
 
 import com.codecool.solarwatch.api.current_weather.model.CurrentWeatherResponse;
 import com.codecool.solarwatch.api.current_weather.service.CurrentWeatherAPIFetcher;
+import com.codecool.solarwatch.api.geocoding.model.Coordinates;
 import com.codecool.solarwatch.api.geocoding.service.GeoCodeAPIFetcher;
-import com.codecool.solarwatch.exception.InvalidCityException;
+import com.codecool.solarwatch.exception.CityNotFoundException;
 import com.codecool.solarwatch.exception.InvalidDateException;
 import com.codecool.solarwatch.exception.NotSupportedCityException;
 import com.codecool.solarwatch.exception.SunriseSunsetNotFoundException;
-import com.codecool.solarwatch.api.geocoding.model.Coordinates;
 import com.codecool.solarwatch.model.dto.CurrentWeatherInfoDTO;
 import com.codecool.solarwatch.model.entity.City;
 import com.codecool.solarwatch.model.entity.SunriseSunsetInfo;
@@ -28,18 +28,18 @@ import static com.codecool.solarwatch.util.Utility.convertToCelsius;
 import static com.codecool.solarwatch.util.Utility.convertUnixUTCToLocalDateTime;
 
 @Service
-public class MyWeatherAPIService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MyWeatherAPIService.class);
+public class SolarWatchService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SolarWatchService.class);
     private final CityRepository cityRepository;
     private final SunriseSunsetRepository sunriseSunsetRepository;
     private final GeoCodeAPIFetcher geoCodeAPIFetcher;
     private final CurrentWeatherAPIFetcher currentWeatherAPIFetcher;
 
     @Autowired
-    public MyWeatherAPIService(CityRepository cityRepository,
-                               SunriseSunsetRepository sunriseSunsetRepository,
-                               GeoCodeAPIFetcher geoCodeAPIFetcher,
-                               CurrentWeatherAPIFetcher currentWeatherAPIFetcher) {
+    public SolarWatchService(CityRepository cityRepository,
+                             SunriseSunsetRepository sunriseSunsetRepository,
+                             GeoCodeAPIFetcher geoCodeAPIFetcher,
+                             CurrentWeatherAPIFetcher currentWeatherAPIFetcher) {
         this.cityRepository = cityRepository;
         this.sunriseSunsetRepository = sunriseSunsetRepository;
         this.geoCodeAPIFetcher = geoCodeAPIFetcher;
@@ -65,7 +65,7 @@ public class MyWeatherAPIService {
     private City getCityByName(String cityName) {
         return cityRepository
                 .findByName(cityName)
-                .orElseThrow(() -> new InvalidCityException(cityName));
+                .orElseThrow(() -> new CityNotFoundException(cityName));
     }
 
     private SunriseSunsetInfo getSunriseSunsetInfoByCityAndDate(City city, LocalDate date) {
@@ -89,21 +89,20 @@ public class MyWeatherAPIService {
         City city;
         try {
             city = getCityByName(cityName);
-        } catch (InvalidCityException e) {
-            city = saveCityEntityIfNotInDatabase(cityName);
+            LOGGER.info("City: [{}] found in Database", city.getName());
+        } catch (CityNotFoundException e) {
+            city = createCityEntityFrom(cityName);
+            cityRepository.save(city);
+            LOGGER.info("City: [{}] saved to Database", city.getName());
         }
         return city;
     }
 
-
-    private City saveCityEntityIfNotInDatabase(String cityName) {
+    private City createCityEntityFrom(String cityName) {
         Coordinates coordinates = this.geoCodeAPIFetcher.getCoordinatesFromCityName(cityName);
-        City city = new City(cityName,
+        return new City(cityName,
                 coordinates);
-        LOGGER.info(String.format("%s successfully saved to DB", city));
-        return this.cityRepository.save(city);
     }
-
 
     @Transactional
     public void deleteCityByName(String cityName) {
@@ -111,10 +110,11 @@ public class MyWeatherAPIService {
             City requestedCity = getCityByName(cityName);
             this.cityRepository.delete(requestedCity);
             LOGGER.info("City [{}] deleted from database", cityName);
-        } catch (InvalidCityException e) {
+        } catch (CityNotFoundException e) {
             LOGGER.error(e.getMessage());
         }
     }
+
     @Transactional
     public void updateCityInfo(String cityName) {
         City requestedCity;
@@ -133,7 +133,7 @@ public class MyWeatherAPIService {
             return this.currentWeatherAPIFetcher
                     .fetchCurrentWeatherResponse(coordinates);
         } else {
-            throw new InvalidCityException(cityName);
+            throw new CityNotFoundException(cityName);
         }
     }
 

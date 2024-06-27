@@ -1,7 +1,7 @@
 package com.codecool.solarwatch.service;
 
 import com.codecool.solarwatch.api.geocoding.service.GeoCodeAPIFetcher;
-import com.codecool.solarwatch.exception.InvalidCityException;
+import com.codecool.solarwatch.exception.CityNotFoundException;
 import com.codecool.solarwatch.api.geocoding.model.Coordinates;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ class GeoCodeAPIFetcherTest {
     @Test
     void WhenCityIsNull_ThenInvalidCityExceptionIsThrown() {
 
-        assertThrows(InvalidCityException.class, () -> this.geoCodeAPIFetcher
+        assertThrows(CityNotFoundException.class, () -> this.geoCodeAPIFetcher
                 .getCoordinatesFromCityName(null));
     }
 
@@ -42,7 +42,7 @@ class GeoCodeAPIFetcherTest {
         /*when(coordinateFetcher.getCoordinatesForCity(invalidCityName))
                 .thenReturn(Mono.just(null));*/
 
-        assertThrows(InvalidCityException.class, () -> this.geoCodeAPIFetcher
+        assertThrows(CityNotFoundException.class, () -> this.geoCodeAPIFetcher
                 .getCoordinatesFromCityName(invalidCityName));
     }
 }
