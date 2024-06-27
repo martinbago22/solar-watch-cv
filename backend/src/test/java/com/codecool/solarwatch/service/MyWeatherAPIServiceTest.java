@@ -1,6 +1,6 @@
 package com.codecool.solarwatch.service;
 
-import com.codecool.solarwatch.api.weather.current_weather_response.service.GeoCodeAPIService;
+import com.codecool.solarwatch.api.geocoding.service.GeoCodeAPIFetcher;
 import com.codecool.solarwatch.exception.InvalidDateException;
 import com.codecool.solarwatch.exception.NotSupportedCityException;
 import com.codecool.solarwatch.model.entity.City;
@@ -29,7 +29,7 @@ class MyWeatherAPIServiceTest {
     @Mock
     private SunriseSunsetRepository sunriseSunsetRepository;
     @Mock
-    private GeoCodeAPIService geoCodeAPIService;
+    private GeoCodeAPIFetcher geoCodeAPIFetcher;
     @InjectMocks
     MyWeatherAPIService myWeatherAPIService;
 

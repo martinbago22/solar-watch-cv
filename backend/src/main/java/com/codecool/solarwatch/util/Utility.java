@@ -23,9 +23,6 @@ public class Utility {
     public static LocalDateTime convertUnixUTCToLocalDateTime(String unixUTC) {
         long unix_seconds = Long.parseLong(unixUTC);
         Instant instant = Instant.ofEpochMilli(unix_seconds);
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"));
-        System.out.println(unixUTC);
-        System.out.println(localDateTime);
-        return localDateTime;
+        return LocalDateTime.ofInstant(instant, ZoneId.of("UTC"));
     }
 }

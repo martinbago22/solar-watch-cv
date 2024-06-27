@@ -1,10 +1,10 @@
-package com.codecool.solarwatch.api.weather.current_weather_response.service;
+package com.codecool.solarwatch.api.current_weather.service;
 
-import com.codecool.solarwatch.api.weather.current_weather_response.model.CurrentWeatherResponse;
+import com.codecool.solarwatch.api.current_weather.model.CurrentWeatherResponse;
 import com.codecool.solarwatch.exception.InvalidDateException;
-import com.codecool.solarwatch.model.Coordinates;
-import com.codecool.solarwatch.model.SolarResultDetails;
-import com.codecool.solarwatch.model.WeatherReport;
+import com.codecool.solarwatch.api.geocoding.model.Coordinates;
+import com.codecool.solarwatch.api.current_weather.model.SolarResultDetails;
+import com.codecool.solarwatch.api.current_weather.model.WeatherReport;
 import com.codecool.solarwatch.model.entity.City;
 import com.codecool.solarwatch.model.entity.SunriseSunsetInfo;
 import org.springframework.beans.factory.annotation.Autowired;

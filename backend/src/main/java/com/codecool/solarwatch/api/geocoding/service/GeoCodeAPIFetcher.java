@@ -1,6 +1,6 @@
-package com.codecool.solarwatch.api.weather.current_weather_response.service;
+package com.codecool.solarwatch.api.geocoding.service;
 
-import com.codecool.solarwatch.model.Coordinates;
+import com.codecool.solarwatch.api.geocoding.model.Coordinates;
 import jakarta.validation.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,13 +14,13 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Service
-public class GeoCodeAPIService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GeoCodeAPIService.class);
+public class GeoCodeAPIFetcher {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeoCodeAPIFetcher.class);
     private static final String API_KEY = System.getenv("API_KEY");
     private final WebClient webClient;
 
     @Autowired
-    public GeoCodeAPIService(WebClient webClient) {
+    public GeoCodeAPIFetcher(WebClient webClient) {
         this.webClient = webClient;
     }
 

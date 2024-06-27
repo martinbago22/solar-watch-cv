@@ -1,6 +1,6 @@
-package com.codecool.solarwatch.api.weather.current_weather_response.service;
+package com.codecool.solarwatch.api.current_weather.current_weather_response.service;
 
-import com.codecool.solarwatch.model.Coordinates;
+import com.codecool.solarwatch.api.geocoding.model.Coordinates;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

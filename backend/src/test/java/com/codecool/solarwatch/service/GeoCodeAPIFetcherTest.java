@@ -1,8 +1,8 @@
 package com.codecool.solarwatch.service;
 
-import com.codecool.solarwatch.api.weather.current_weather_response.service.GeoCodeAPIService;
+import com.codecool.solarwatch.api.geocoding.service.GeoCodeAPIFetcher;
 import com.codecool.solarwatch.exception.InvalidCityException;
-import com.codecool.solarwatch.model.Coordinates;
+import com.codecool.solarwatch.api.geocoding.model.Coordinates;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,16 +15,16 @@ import static org.mockito.ArgumentMatchers.any;
 
 @DisplayName("GeocodeService Unit test")
 @ExtendWith(MockitoExtension.class)
-class GeoCodeAPIServiceTest {
+class GeoCodeAPIFetcherTest {
 
     @InjectMocks
-    GeoCodeAPIService geoCodeAPIService;
+    GeoCodeAPIFetcher geoCodeAPIFetcher;
 
     @Test
     void WhenGetCoordinatesFromCity_ThenCoordinatesGetReturned() {
         Coordinates expected = new Coordinates(0, 1, "Hungary", "Bács-Kiskun");
 
-        Coordinates actual = geoCodeAPIService.getCoordinatesFromCityName("asd");
+        Coordinates actual = geoCodeAPIFetcher.getCoordinatesFromCityName("asd");
 
         assertEquals(expected, actual);
     }
@@ -32,7 +32,7 @@ class GeoCodeAPIServiceTest {
     @Test
     void WhenCityIsNull_ThenInvalidCityExceptionIsThrown() {
 
-        assertThrows(InvalidCityException.class, () -> this.geoCodeAPIService
+        assertThrows(InvalidCityException.class, () -> this.geoCodeAPIFetcher
                 .getCoordinatesFromCityName(null));
     }
 
@@ -42,7 +42,7 @@ class GeoCodeAPIServiceTest {
         /*when(coordinateFetcher.getCoordinatesForCity(invalidCityName))
                 .thenReturn(Mono.just(null));*/
 
-        assertThrows(InvalidCityException.class, () -> this.geoCodeAPIService
+        assertThrows(InvalidCityException.class, () -> this.geoCodeAPIFetcher
                 .getCoordinatesFromCityName(invalidCityName));
     }
 }

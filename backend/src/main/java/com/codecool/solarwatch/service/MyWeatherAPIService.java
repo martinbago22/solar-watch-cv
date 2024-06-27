@@ -1,13 +1,13 @@
 package com.codecool.solarwatch.service;
 
-import com.codecool.solarwatch.api.weather.current_weather_response.model.CurrentWeatherResponse;
-import com.codecool.solarwatch.api.weather.current_weather_response.service.CurrentWeatherAPIFetcher;
-import com.codecool.solarwatch.api.weather.current_weather_response.service.GeoCodeAPIService;
+import com.codecool.solarwatch.api.current_weather.model.CurrentWeatherResponse;
+import com.codecool.solarwatch.api.current_weather.service.CurrentWeatherAPIFetcher;
+import com.codecool.solarwatch.api.geocoding.service.GeoCodeAPIFetcher;
 import com.codecool.solarwatch.exception.InvalidCityException;
 import com.codecool.solarwatch.exception.InvalidDateException;
 import com.codecool.solarwatch.exception.NotSupportedCityException;
 import com.codecool.solarwatch.exception.SunriseSunsetNotFoundException;
-import com.codecool.solarwatch.model.Coordinates;
+import com.codecool.solarwatch.api.geocoding.model.Coordinates;
 import com.codecool.solarwatch.model.dto.CurrentWeatherInfoDTO;
 import com.codecool.solarwatch.model.entity.City;
 import com.codecool.solarwatch.model.entity.SunriseSunsetInfo;
@@ -32,17 +32,17 @@ public class MyWeatherAPIService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MyWeatherAPIService.class);
     private final CityRepository cityRepository;
     private final SunriseSunsetRepository sunriseSunsetRepository;
-    private final GeoCodeAPIService geoCodeAPIService;
+    private final GeoCodeAPIFetcher geoCodeAPIFetcher;
     private final CurrentWeatherAPIFetcher currentWeatherAPIFetcher;
 
     @Autowired
     public MyWeatherAPIService(CityRepository cityRepository,
                                SunriseSunsetRepository sunriseSunsetRepository,
-                               GeoCodeAPIService geoCodeAPIService,
+                               GeoCodeAPIFetcher geoCodeAPIFetcher,
                                CurrentWeatherAPIFetcher currentWeatherAPIFetcher) {
         this.cityRepository = cityRepository;
         this.sunriseSunsetRepository = sunriseSunsetRepository;
-        this.geoCodeAPIService = geoCodeAPIService;
+        this.geoCodeAPIFetcher = geoCodeAPIFetcher;
         this.currentWeatherAPIFetcher = currentWeatherAPIFetcher;
     }
 
@@ -97,7 +97,7 @@ public class MyWeatherAPIService {
 
 
     private City saveCityEntityIfNotInDatabase(String cityName) {
-        Coordinates coordinates = this.geoCodeAPIService.getCoordinatesFromCityName(cityName);
+        Coordinates coordinates = this.geoCodeAPIFetcher.getCoordinatesFromCityName(cityName);
         City city = new City(cityName,
                 coordinates);
         LOGGER.info(String.format("%s successfully saved to DB", city));
@@ -128,7 +128,7 @@ public class MyWeatherAPIService {
     }
 
     public CurrentWeatherResponse getCurrentWeatherResponseFor(String cityName) {
-        Coordinates coordinates = this.geoCodeAPIService.getCoordinatesFromCityName(cityName);
+        Coordinates coordinates = this.geoCodeAPIFetcher.getCoordinatesFromCityName(cityName);
         if (cityName != null && !cityName.trim().isEmpty()) {
             return this.currentWeatherAPIFetcher
                     .fetchCurrentWeatherResponse(coordinates);
