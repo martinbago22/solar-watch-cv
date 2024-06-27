@@ -17,11 +17,11 @@ import java.time.format.DateTimeParseException;
 import static com.codecool.solarwatch.util.Utility.converToLocalTime;
 
 @Component
-public class CurrentWeatherFetcher {
+public class CurrentWeatherAPIFetcher {
     private final WebClient webClient;
 
     @Autowired
-    public CurrentWeatherFetcher(WebClient webClient) {
+    public CurrentWeatherAPIFetcher(WebClient webClient) {
         this.webClient = webClient;
     }
 
