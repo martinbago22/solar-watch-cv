@@ -1,6 +1,6 @@
 package com.codecool.solarwatch.model.entity;
 
-import com.codecool.solarwatch.model.Coordinates;
+import com.codecool.solarwatch.api.geocoding.model.Coordinates;
 import jakarta.persistence.*;
 
 import java.util.List;

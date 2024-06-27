@@ -1,12 +1,13 @@
-package com.codecool.solarwatch.api.weather.current_weather_response.service;
+package com.codecool.solarwatch.api.current_weather.service;
 
-import com.codecool.solarwatch.api.weather.current_weather_response.model.CurrentWeatherResponse;
+import com.codecool.solarwatch.api.current_weather.model.CurrentWeatherResponse;
 import com.codecool.solarwatch.exception.InvalidDateException;
-import com.codecool.solarwatch.model.Coordinates;
-import com.codecool.solarwatch.model.SolarResultDetails;
-import com.codecool.solarwatch.model.WeatherReport;
+import com.codecool.solarwatch.api.geocoding.model.Coordinates;
+import com.codecool.solarwatch.api.current_weather.model.SolarResultDetails;
+import com.codecool.solarwatch.api.current_weather.model.WeatherReport;
 import com.codecool.solarwatch.model.entity.City;
 import com.codecool.solarwatch.model.entity.SunriseSunsetInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -16,11 +17,11 @@ import java.time.format.DateTimeParseException;
 import static com.codecool.solarwatch.util.Utility.converToLocalTime;
 
 @Component
-public class CurrentWeatherFetcher {
-    private static final String API = System.getenv("API_KEY");
+public class CurrentWeatherAPIFetcher {
     private final WebClient webClient;
 
-    public CurrentWeatherFetcher(WebClient webClient) {
+    @Autowired
+    public CurrentWeatherAPIFetcher(WebClient webClient) {
         this.webClient = webClient;
     }
 
@@ -52,25 +53,17 @@ public class CurrentWeatherFetcher {
     }
 
     private SolarResultDetails getSolarResultDetails(Coordinates coordinates, String date) {
-        String url;
-        if (isDateProvided(date)) {
-            if (isDateCorrectFormat(date))
-                url = String.format(API + "lat=%s&lng=%s&date=%s",
-                        coordinates.latitude(),
-                        coordinates.longitude(),
-                        date);
-            else {
-                throw new InvalidDateException();
-            }
-        } else {
-            url = String.format(API + "lat=%s&lng=%s", coordinates.latitude(), coordinates.longitude());
+        String url = "https://api.sunrise-sunset.org/json?";
+        if (isDateCorrectFormat(date))
+            url += String.format("lat=%s&lng=%s&date=%s&tzid=Europe/Budapest",
+                    coordinates.latitude(),
+                    coordinates.longitude(),
+                    date);
+        else {
+            throw new InvalidDateException();
         }
         WeatherReport weatherReport = getWeatherReportFrom(url);
         return getSolarResultDetailsFrom(weatherReport);
-    }
-
-    private boolean isDateProvided(String date) {
-        return date != null && !date.trim().isEmpty();
     }
 
     private boolean isDateCorrectFormat(String date) {
