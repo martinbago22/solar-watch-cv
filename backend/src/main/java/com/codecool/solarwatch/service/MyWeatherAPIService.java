@@ -112,7 +112,7 @@ public class MyWeatherAPIService {
             this.cityRepository.delete(requestedCity);
             LOGGER.info("City [{}] deleted from database", cityName);
         } catch (InvalidCityException e) {
-            LOGGER.error("City [{}] does not exist in database", cityName);
+            LOGGER.error(e.getMessage());
         }
     }
     @Transactional
@@ -121,6 +121,7 @@ public class MyWeatherAPIService {
         try {
             requestedCity = getCityByName(cityName);
             this.cityRepository.save(requestedCity);
+            LOGGER.info("City: [{}] successfully updated", requestedCity.getName());
         } catch (NotSupportedCityException e) {
             LOGGER.error(e.getMessage());
         }
