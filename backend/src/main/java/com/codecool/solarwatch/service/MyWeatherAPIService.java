@@ -97,7 +97,7 @@ public class MyWeatherAPIService {
 
 
     private City saveCityEntityIfNotInDatabase(String cityName) {
-        Coordinates coordinates = this.geoCodeAPIService.getCoordinatesFromCity(cityName);
+        Coordinates coordinates = this.geoCodeAPIService.getCoordinatesFromCityName(cityName);
         City city = new City(cityName,
                 coordinates);
         LOGGER.info(String.format("%s successfully saved to DB", city));
@@ -128,7 +128,7 @@ public class MyWeatherAPIService {
     }
 
     public CurrentWeatherResponse getCurrentWeatherResponseFor(String cityName) {
-        Coordinates coordinates = this.geoCodeAPIService.getCoordinatesFromCity(cityName);
+        Coordinates coordinates = this.geoCodeAPIService.getCoordinatesFromCityName(cityName);
         if (cityName != null && !cityName.trim().isEmpty()) {
             return this.currentWeatherAPIFetcher
                     .fetchCurrentWeatherResponse(coordinates);

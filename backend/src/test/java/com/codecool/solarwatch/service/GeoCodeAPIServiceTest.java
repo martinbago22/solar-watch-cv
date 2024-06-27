@@ -12,8 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 @DisplayName("GeocodeService Unit test")
 @ExtendWith(MockitoExtension.class)
@@ -26,7 +24,7 @@ class GeoCodeAPIServiceTest {
     void WhenGetCoordinatesFromCity_ThenCoordinatesGetReturned() {
         Coordinates expected = new Coordinates(0, 1, "Hungary", "Bács-Kiskun");
 
-        Coordinates actual = geoCodeAPIService.getCoordinatesFromCity("asd");
+        Coordinates actual = geoCodeAPIService.getCoordinatesFromCityName("asd");
 
         assertEquals(expected, actual);
     }
@@ -35,7 +33,7 @@ class GeoCodeAPIServiceTest {
     void WhenCityIsNull_ThenInvalidCityExceptionIsThrown() {
 
         assertThrows(InvalidCityException.class, () -> this.geoCodeAPIService
-                .getCoordinatesFromCity(null));
+                .getCoordinatesFromCityName(null));
     }
 
     @Test
@@ -45,6 +43,6 @@ class GeoCodeAPIServiceTest {
                 .thenReturn(Mono.just(null));*/
 
         assertThrows(InvalidCityException.class, () -> this.geoCodeAPIService
-                .getCoordinatesFromCity(invalidCityName));
+                .getCoordinatesFromCityName(invalidCityName));
     }
 }
