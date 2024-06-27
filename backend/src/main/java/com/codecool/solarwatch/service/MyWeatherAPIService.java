@@ -2,6 +2,7 @@ package com.codecool.solarwatch.service;
 
 import com.codecool.solarwatch.api.weather.current_weather_response.model.CurrentWeatherResponse;
 import com.codecool.solarwatch.api.weather.current_weather_response.service.CurrentWeatherFetcher;
+import com.codecool.solarwatch.api.weather.current_weather_response.service.GeoCodeService;
 import com.codecool.solarwatch.exception.InvalidCityException;
 import com.codecool.solarwatch.exception.InvalidDateException;
 import com.codecool.solarwatch.exception.NotSupportedCityException;
@@ -12,7 +13,6 @@ import com.codecool.solarwatch.model.entity.City;
 import com.codecool.solarwatch.model.entity.SunriseSunsetInfo;
 import com.codecool.solarwatch.repository.CityRepository;
 import com.codecool.solarwatch.repository.SunriseSunsetRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,21 +24,22 @@ import java.time.format.DateTimeParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.codecool.solarwatch.util.Utility.*;
+import static com.codecool.solarwatch.util.Utility.convertToCelsius;
+import static com.codecool.solarwatch.util.Utility.convertUnixUTCToLocalDateTime;
 
 @Service
-public class OpenWeatherService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenWeatherService.class);
+public class MyWeatherAPIService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MyWeatherAPIService.class);
     private final CityRepository cityRepository;
     private final SunriseSunsetRepository sunriseSunsetRepository;
     private final GeoCodeService geoCodeService;
     private final CurrentWeatherFetcher currentWeatherFetcher;
 
     @Autowired
-    public OpenWeatherService(CityRepository cityRepository,
-                              SunriseSunsetRepository sunriseSunsetRepository,
-                              GeoCodeService geoCodeService,
-                              CurrentWeatherFetcher currentWeatherFetcher) {
+    public MyWeatherAPIService(CityRepository cityRepository,
+                               SunriseSunsetRepository sunriseSunsetRepository,
+                               GeoCodeService geoCodeService,
+                               CurrentWeatherFetcher currentWeatherFetcher) {
         this.cityRepository = cityRepository;
         this.sunriseSunsetRepository = sunriseSunsetRepository;
         this.geoCodeService = geoCodeService;
@@ -73,7 +74,7 @@ public class OpenWeatherService {
                 .orElseThrow(() -> new SunriseSunsetNotFoundException(city, date));
     }
 
-    private  LocalDate handleDateParameter(String date) {
+    private LocalDate handleDateParameter(String date) {
         if (date == null || date.isEmpty()) {
             throw new InvalidDateException("date cannot be null or empty");
         }
@@ -89,13 +90,13 @@ public class OpenWeatherService {
         try {
             city = getCityByName(cityName);
         } catch (InvalidCityException e) {
-            city = createCityEntityIfNotInDatabase(cityName);
+            city = saveCityEntityIfNotInDatabase(cityName);
         }
         return city;
     }
 
 
-    private City createCityEntityIfNotInDatabase(String cityName) {
+    private City saveCityEntityIfNotInDatabase(String cityName) {
         Coordinates coordinates = this.geoCodeService.getCoordinatesFromCity(cityName);
         City city = new City(cityName,
                 coordinates);
@@ -114,22 +115,15 @@ public class OpenWeatherService {
             LOGGER.error("City [{}] does not exist in database", cityName);
         }
     }
-
+    @Transactional
     public void updateCityInfo(String cityName) {
         City requestedCity;
         try {
             requestedCity = getCityByName(cityName);
+            this.cityRepository.save(requestedCity);
         } catch (NotSupportedCityException e) {
-            LOGGER.info(e.getMessage());
-            Coordinates coordinates =
-                    this.geoCodeService.getCoordinatesFromCity(cityName);
-            requestedCity = new City(cityName,
-                    coordinates.longitude(),
-                    coordinates.latitude(),
-                    coordinates.state(),
-                    coordinates.country());
+            LOGGER.error(e.getMessage());
         }
-        this.cityRepository.save(requestedCity);
     }
 
     public CurrentWeatherResponse getCurrentWeatherResponseFor(String cityName) {

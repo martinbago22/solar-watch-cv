@@ -1,6 +1,7 @@
 package com.codecool.solarwatch.api.weather.current_weather_response.service;
 
 import com.codecool.solarwatch.model.Coordinates;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -13,7 +14,7 @@ import java.util.List;
 public class CoordinateFetcher {
     private static final String API_KEY = System.getenv("API_KEY");
     private final WebClient webClient;
-
+    @Autowired
     public CoordinateFetcher(WebClient webClient) {
         this.webClient = webClient;
     }

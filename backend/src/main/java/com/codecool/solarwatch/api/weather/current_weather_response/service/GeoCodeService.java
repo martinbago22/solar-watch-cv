@@ -1,18 +1,18 @@
-package com.codecool.solarwatch.service;
+package com.codecool.solarwatch.api.weather.current_weather_response.service;
 
-import com.codecool.solarwatch.api.weather.current_weather_response.service.CoordinateFetcher;
 import com.codecool.solarwatch.exception.InvalidCityException;
 import com.codecool.solarwatch.model.Coordinates;
 import jakarta.validation.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GeoCodeService {
     private static final Logger logger = LoggerFactory.getLogger(GeoCodeService.class);
     private final CoordinateFetcher coordinateFetcher;
-
+    @Autowired
     public GeoCodeService(CoordinateFetcher coordinateFetcher) {
         this.coordinateFetcher = coordinateFetcher;
     }

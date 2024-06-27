@@ -1,19 +1,18 @@
 package com.codecool.solarwatch.service;
 
+import com.codecool.solarwatch.api.weather.current_weather_response.service.GeoCodeService;
 import com.codecool.solarwatch.exception.InvalidDateException;
 import com.codecool.solarwatch.exception.NotSupportedCityException;
 import com.codecool.solarwatch.model.entity.City;
 import com.codecool.solarwatch.model.entity.SunriseSunsetInfo;
 import com.codecool.solarwatch.repository.CityRepository;
 import com.codecool.solarwatch.repository.SunriseSunsetRepository;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -22,13 +21,9 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-
+@DisplayName("OpenWeatherService Unit test")
 @ExtendWith(MockitoExtension.class)
-class OpenWeatherServiceTest {
-    private static final String API = "https://api.sunrise-sunset.org/json?";
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenWeatherServiceTest.class);
-    @Mock
-    private WebClient webClient;
+class MyWeatherAPIServiceTest {
     @Mock
     private CityRepository cityRepository;
     @Mock
@@ -36,12 +31,12 @@ class OpenWeatherServiceTest {
     @Mock
     private GeoCodeService geoCodeService;
     @InjectMocks
-    OpenWeatherService openWeatherService;
+    MyWeatherAPIService myWeatherAPIService;
 
     @Test
-    void getSunriseSunsetInfo_ThrowsInvalidDateException_WhenProvidedInvalidDateParameter() {
+    void WhenProvidedInvalidDateParameter_ThenGetSunriseSunsetInfoThrowsInvalidDateException() {
         assertThrows(InvalidDateException.class,
-                () -> this.openWeatherService.getSunriseSunsetInfo("asd", "asd"));
+                () -> this.myWeatherAPIService.getSunriseSunsetInfo("asd", "asd"));
     }
 
     @Test
@@ -62,7 +57,7 @@ class OpenWeatherServiceTest {
                 .thenReturn(Optional.of(mockCity));
         when(this.sunriseSunsetRepository.getSunriseSunsetByCityAndDate(mockCity, dateWhenNotProvided))
                 .thenReturn(Optional.of(expectedSunriseSunsetInfo));
-        SunriseSunsetInfo actualSunriseSunsetInfo = this.openWeatherService.getSunriseSunsetInfo(cityName, null);
+        SunriseSunsetInfo actualSunriseSunsetInfo = this.myWeatherAPIService.getSunriseSunsetInfo(cityName, null);
 
         assertEquals(expectedSunriseSunsetInfo, actualSunriseSunsetInfo);
     }
@@ -86,7 +81,7 @@ class OpenWeatherServiceTest {
         when(this.sunriseSunsetRepository.getSunriseSunsetByCityAndDate(mockCity, requestedDate))
                 .thenReturn(Optional.of(expectedSunriseSunsetInfo));
 
-        SunriseSunsetInfo actual = this.openWeatherService.getSunriseSunsetInfo(cityName, "1996-09-17");
+        SunriseSunsetInfo actual = this.myWeatherAPIService.getSunriseSunsetInfo(cityName, "1996-09-17");
 
         assertEquals(expectedSunriseSunsetInfo, actual);
     }
@@ -96,7 +91,7 @@ class OpenWeatherServiceTest {
         when(this.cityRepository.findByName("asd")).thenThrow(new NotSupportedCityException("asd"));
 
         assertThrows(NotSupportedCityException.class,
-                () -> this.openWeatherService.getSunriseSunsetInfo("asd", "2024-06-16"));
+                () -> this.myWeatherAPIService.getSunriseSunsetInfo("asd", "2024-06-16"));
     }
     @Test
     void deleteCityByName_DeletesRequestedCity_WhenItExistsInDatabase() {

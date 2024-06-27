@@ -7,6 +7,7 @@ import com.codecool.solarwatch.model.SolarResultDetails;
 import com.codecool.solarwatch.model.WeatherReport;
 import com.codecool.solarwatch.model.entity.City;
 import com.codecool.solarwatch.model.entity.SunriseSunsetInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -17,9 +18,9 @@ import static com.codecool.solarwatch.util.Utility.converToLocalTime;
 
 @Component
 public class CurrentWeatherFetcher {
-    private static final String API_KEY = System.getenv("API_KEY");
     private final WebClient webClient;
 
+    @Autowired
     public CurrentWeatherFetcher(WebClient webClient) {
         this.webClient = webClient;
     }
