@@ -34,6 +34,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("UserService Unit test")
 class UserServiceTest {
     @Mock
     private UserRepository userRepository;
@@ -200,6 +201,7 @@ class UserServiceTest {
         }
 
         @Test
+        @DisplayName("createUser throws username already exists exception when given already existing username")
         void WhenProvidedAlreadyExistingUserName_ThenCreateUserThrowsUserNameAlreadyExistsException() {
 
             RegisterRequestDTO sameNameRegisterAttempt = new RegisterRequestDTO("John", "doe");
