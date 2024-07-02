@@ -1,24 +1,18 @@
 package com.codecool.solarwatch.api.weather.current_weather_response.service;
 
-import com.codecool.solarwatch.model.WeatherReport;
 import com.codecool.solarwatch.model.entity.City;
+import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.reactive.server.WebTestClient;
-import reactor.core.publisher.Mono;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.time.LocalDate;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CurrentWeatherFetcher Unit test")
@@ -29,23 +23,21 @@ class CurrentWeatherFetcherTest {
             new City("valid", 12, 12, "state", "country");
     private static final LocalDate date =
             LocalDate.now();
-    @InjectMocks
-    private CurrentWeatherFetcher currentWeatherFetcher;
+    private static CurrentWeatherFetcher underTest;
 
     @BeforeAll
     static void setUp() throws IOException {
         mockBackEnd = new MockWebServer();
+        WebClient mockedWebClient = WebClient.builder()
+                .baseUrl(mockBackEnd.url("/").toString())
+                .build();
+        underTest = new CurrentWeatherFetcher(mockedWebClient);
         mockBackEnd.start();
     }
+
     @AfterAll
     static void tearDown() throws IOException {
-        mockBackEnd.shutdown();
-    }
-    @BeforeEach
-    void initialize() {
-        String baseUrl = String.format("http://localhost:%s",
-                mockBackEnd.getPort());
-        currentWeatherFetcher = new CurrentWeatherFetcher(baseUrl);
+        mockBackEnd.close();
     }
 
     @Nested
@@ -54,7 +46,6 @@ class CurrentWeatherFetcherTest {
         @Test
         @DisplayName("asd")
         void WhenGivenValidCityAndDate_ThenSunriseSunsetInfoGetsFetched() {
-            WeatherReport expected = mock(WeatherReport.class);
         }
     }
 }
