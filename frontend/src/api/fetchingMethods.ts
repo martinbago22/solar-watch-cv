@@ -1,9 +1,9 @@
 export async function getWeatherInfo(): Promise<CurrentWeatherResponse> {
 	try {
-		const response = await fetch('/api/weatherforecast/current?city=Tokyo');
-		const weather :CurrentWeatherResponse = await response.json();
-		console.log(weather);
-		return weather;
+		const response = await fetch('/api/weatherforecast/current');
+		const currentWeatherResponse :CurrentWeatherResponse = await response.json();
+		console.log(currentWeatherResponse);
+		return currentWeatherResponse;
 	} catch (e) {
 		console.error(e);
 		throw new Error(`Failed to fetch weather information: ${e}`);
