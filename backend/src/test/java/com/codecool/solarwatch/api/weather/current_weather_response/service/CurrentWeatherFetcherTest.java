@@ -1,5 +1,6 @@
 package com.codecool.solarwatch.api.weather.current_weather_response.service;
 
+import com.codecool.solarwatch.api.current_weather.service.CurrentWeatherAPIFetcher;
 import com.codecool.solarwatch.model.entity.City;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
@@ -23,7 +24,7 @@ class CurrentWeatherFetcherTest {
             new City("valid", 12, 12, "state", "country");
     private static final LocalDate date =
             LocalDate.now();
-    private static CurrentWeatherFetcher underTest;
+    private static CurrentWeatherAPIFetcher underTest;
 
     @BeforeAll
     static void setUp() throws IOException {
@@ -31,7 +32,7 @@ class CurrentWeatherFetcherTest {
         WebClient mockedWebClient = WebClient.builder()
                 .baseUrl(mockBackEnd.url("/").toString())
                 .build();
-        underTest = new CurrentWeatherFetcher(mockedWebClient);
+        underTest = new CurrentWeatherAPIFetcher(mockedWebClient);
         mockBackEnd.start();
     }
 
