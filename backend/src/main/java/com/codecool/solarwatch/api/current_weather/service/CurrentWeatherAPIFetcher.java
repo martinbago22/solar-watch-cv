@@ -19,8 +19,8 @@ import static com.codecool.solarwatch.util.Utility.converToLocalTime;
 @Component
 public class CurrentWeatherAPIFetcher {
     private final WebClient webClient;
-
-    public CurrentWeatherFetcher(WebClient webClient) {
+    @Autowired
+    public CurrentWeatherAPIFetcher(WebClient webClient) {
         this.webClient = webClient;
     }
 
