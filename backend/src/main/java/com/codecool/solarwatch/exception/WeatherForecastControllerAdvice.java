@@ -16,9 +16,9 @@ import java.util.Map;
 @Component
 public class WeatherForecastControllerAdvice {
     @ResponseBody
-    @ExceptionHandler(InvalidCityException.class)
+    @ExceptionHandler(CityNotFoundException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String notSupportedCityExceptionHandler(InvalidCityException e) {
+    public String notSupportedCityExceptionHandler(CityNotFoundException e) {
         return e.getMessage();
     }
 

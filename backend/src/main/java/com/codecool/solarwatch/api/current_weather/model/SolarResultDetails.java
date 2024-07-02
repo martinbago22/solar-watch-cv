@@ -1,4 +1,4 @@
-package com.codecool.solarwatch.model;
+package com.codecool.solarwatch.api.current_weather.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

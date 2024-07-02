@@ -1,4 +1,4 @@
-package com.codecool.solarwatch.model.api_response;
+package com.codecool.solarwatch.api.geocoding.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
