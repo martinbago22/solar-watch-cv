@@ -38,7 +38,7 @@ class SolarWatchServiceTest {
         class GetSunriseSunsetInfoFails {
             @Test
             @DisplayName("getSunriseSunsetInfo throws invalid date exception when provided an invalid date")
-            void WhenProvidedInvalidDate_ThenGetSunriseSunsetInfoThrowsInvalidDateException() {
+            void WhenGivenInvalidDate_ThenGetSunriseSunsetInfoThrowsInvalidDateException() {
                 String invalidDate = "asd";
                 String cityName = "asd";
                 String expectedErrorMessage = "Date is in invalid format. Please provide it with YYYY-MM-DD";
@@ -50,10 +50,23 @@ class SolarWatchServiceTest {
                 verify(cityRepository, times(0)).findByName(cityName);
                 assertEquals(expectedErrorMessage, exception.getMessage());
             }
+            @Test
+            @DisplayName("getSunriseSunsetInfo throws invalid date exception when provided not existing date")
+            void WhenGivenNonExistingDate_ThenGetSunriseSunsetExceptionThrowsInvalidDateException() {
+                String invalidDate = "2023-04-40";
+                String cityName = "asd";
+                String expectedErrorMessage = "Date is in invalid format. Please provide it with YYYY-MM-DD";
+
+                InvalidDateException exception = assertThrows(InvalidDateException.class,
+                        () -> solarWatchService.getSunriseSunsetInfo(cityName, invalidDate));
+
+                verify(cityRepository, times(0)).findByName(cityName);
+                assertEquals(expectedErrorMessage, exception.getMessage());
+            }
 
             @Test
             @DisplayName("getSunriseSunsetInfo throws invalid date exception when provided null as date")
-            void WhenProvidedNullAsDate_ThenGetSunriseSunsetInfoThrowsInvalidDateException() {
+            void WhenGivenNullAsDate_ThenGetSunriseSunsetInfoThrowsInvalidDateException() {
                 String cityName = "asd";
                 String expectedErrorMessage = "date cannot be null or empty";
 
@@ -66,7 +79,7 @@ class SolarWatchServiceTest {
 
             @Test
             @DisplayName("getSunriseSunsetInfo throws invalid date exception when provided empty string as date")
-            void WhenProvidedEmptyStringAsDate_ThenGetSunriseSunsetInfoThrowsInvalidDateException() {
+            void WhenGivenEmptyStringAsDate_ThenGetSunriseSunsetInfoThrowsInvalidDateException() {
                 String cityName = "asd";
                 String emptyDate = "";
                 String expectedErrorMessage = "date cannot be null or empty";
@@ -80,15 +93,29 @@ class SolarWatchServiceTest {
 
             @Test
             @DisplayName("getSunriseSunsetInfo throws city not found exception when provided not existing city")
-            void WhenProvidedNotExistingCity_ThenGetSunriseSunsetInfoThrowsCityNotFoundException() {
+            void WhenGivenNotExistingCity_ThenGetSunriseSunsetInfoThrowsCityNotFoundException() {
                 String notExistingCity = "nonexistent";
                 String validDate = "2023-04-12";
                 String expectedErrorMessage = "No city found under name: nonexistent";
 
                 CityNotFoundException exception = assertThrows(CityNotFoundException.class,
                         () -> solarWatchService.getSunriseSunsetInfo(notExistingCity, validDate));
+
                 verify(cityRepository, times(1)).findByName(notExistingCity);
                 verify(geoCodeAPIFetcher, times(1)).getCoordinatesFromCityName(notExistingCity);
+                assertEquals(expectedErrorMessage, exception.getMessage());
+            }
+            @Test
+            @DisplayName("getSunriseSunsetInfo throws city not found exception when provided empty string")
+            void WhenGivenEmptyStringAsCity_ThenGetSunriseSunsetInfoThrowsCityNotFoundException() {
+                String validDate = "2023-04-12";
+                String expectedErrorMessage = "No city found under name: ";
+
+                CityNotFoundException exception = assertThrows(CityNotFoundException.class,
+                        () -> solarWatchService.getSunriseSunsetInfo("", validDate));
+
+                verify(cityRepository, times(1)).findByName("");
+                verify(geoCodeAPIFetcher, times(1)).getCoordinatesFromCityName("");
                 assertEquals(expectedErrorMessage, exception.getMessage());
             }
         }
