@@ -34,7 +34,7 @@ class SolarWatchServiceTest {
     class GetSunriseSunsetInfoTests {
         @Test
         @DisplayName("getSunriseSunsetInfo throws invalid date exception when provided an invalid date")
-        void WhenProvidedInvalidDateParameter_ThenGetSunriseSunsetInfoThrowsInvalidDateException() {
+        void WhenProvidedInvalidDate_ThenGetSunriseSunsetInfoThrowsInvalidDateException() {
             String invalidDate = "asd";
             String cityName = "asd";
             String expectedErrorMessage = "Date is in invalid format. Please provide it with YYYY-MM-DD";
@@ -42,6 +42,19 @@ class SolarWatchServiceTest {
             InvalidDateException exception = assertThrows(InvalidDateException.class,
                     () -> solarWatchService.getSunriseSunsetInfo(cityName, invalidDate));
 
+
+            verify(cityRepository, times(0)).findByName(cityName);
+            assertEquals(expectedErrorMessage, exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("getSunriseSunsetInfo throws invalid date exception when provided null")
+        void WhenProvidedNullAsDate_ThenGetSunriseSunsetInfoThrowsInvalidDateException() {
+            String cityName = "asd";
+            String expectedErrorMessage = "date cannot be null or empty";
+
+            InvalidDateException exception = assertThrows(InvalidDateException.class,
+                    () -> solarWatchService.getSunriseSunsetInfo(cityName, null));
 
             verify(cityRepository, times(0)).findByName(cityName);
             assertEquals(expectedErrorMessage, exception.getMessage());
