@@ -40,7 +40,7 @@ public class GeoCodeAPIFetcher {
                         return Mono.just(coordinatesList.getFirst());
                     } else {
                         LOGGER.error("No city found under name: [{}]", cityName);
-                        return Mono.error(new CityNotFoundException(cityName));
+                        return Mono.empty();
                     }
                 })
                 .block();

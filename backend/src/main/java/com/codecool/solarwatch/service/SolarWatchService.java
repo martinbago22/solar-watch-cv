@@ -100,8 +100,10 @@ public class SolarWatchService {
 
     private City createCityEntityFrom(String cityName) {
         Coordinates coordinates = this.geoCodeAPIFetcher.getCoordinatesFromCityName(cityName);
-        return new City(cityName,
-                coordinates);
+        if (coordinates != null) {
+            return new City(cityName,
+                    coordinates);
+        } else throw new CityNotFoundException(cityName);
     }
 
     @Transactional

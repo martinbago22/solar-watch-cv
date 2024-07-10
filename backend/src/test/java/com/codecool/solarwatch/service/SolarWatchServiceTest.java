@@ -1,6 +1,7 @@
 package com.codecool.solarwatch.service;
 
 import com.codecool.solarwatch.api.geocoding.service.GeoCodeAPIFetcher;
+import com.codecool.solarwatch.exception.CityNotFoundException;
 import com.codecool.solarwatch.exception.InvalidDateException;
 import com.codecool.solarwatch.repository.CityRepository;
 import com.codecool.solarwatch.repository.SunriseSunsetRepository;
@@ -74,6 +75,20 @@ class SolarWatchServiceTest {
                         () -> solarWatchService.getSunriseSunsetInfo(cityName, emptyDate));
 
                 verify(cityRepository, times(0)).findByName(cityName);
+                assertEquals(expectedErrorMessage, exception.getMessage());
+            }
+
+            @Test
+            @DisplayName("getSunriseSunsetInfo throws city not found exception when provided not existing city")
+            void WhenProvidedNotExistingCity_ThenGetSunriseSunsetInfoThrowsCityNotFoundException() {
+                String notExistingCity = "nonexistent";
+                String validDate = "2023-04-12";
+                String expectedErrorMessage = "No city found under name: nonexistent";
+
+                CityNotFoundException exception = assertThrows(CityNotFoundException.class,
+                        () -> solarWatchService.getSunriseSunsetInfo(notExistingCity, validDate));
+                verify(cityRepository, times(1)).findByName(notExistingCity);
+                verify(geoCodeAPIFetcher, times(1)).getCoordinatesFromCityName(notExistingCity);
                 assertEquals(expectedErrorMessage, exception.getMessage());
             }
         }
