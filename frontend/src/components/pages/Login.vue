@@ -15,11 +15,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { getWeatherInfo, registerUser } from '../../api/fetchingMethods'
+import { fetchWeatherInfo, registerUser } from '../../api/fetchingMethods';
 const username = ref<string>('');
 const password = ref<string>('');
-getWeatherInfo();
-
+fetchWeatherInfo();
 </script>
 
 <style scoped>

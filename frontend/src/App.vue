@@ -1,9 +1,9 @@
 <template>
-  <Login />
+  <SolarApp />
 </template>
 
 <script setup lang="ts">
-import Login from './components/pages/Login.vue'
+import SolarApp from './components/pages/SolarApp.vue'
 </script>
 
 <style scoped></style>
