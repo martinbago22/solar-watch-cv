@@ -54,10 +54,10 @@ public class SolarWatchService {
             sunriseSunsetInfo = getSunriseSunsetInfoByCityAndDate(city, parsedDate);
         } catch (SunriseSunsetNotFoundException e) {
             LOGGER.error(e.getMessage());
-            LOGGER.info("Fetching sunset/sunrise time from api and saving to Database");
+            LOGGER.info("Fetching sunset/sunrise time from API");
             sunriseSunsetInfo = currentWeatherAPIFetcher.fetchSunriseSunsetInfo(city, parsedDate);
             sunriseSunsetRepository.save(sunriseSunsetInfo);
-
+            LOGGER.info("City: [{}] saved to DB", city.getName());
         }
         return sunriseSunsetInfo;
     }
@@ -91,14 +91,15 @@ public class SolarWatchService {
             city = getCityByName(cityName);
             LOGGER.info("City: [{}] found in Database", city.getName());
         } catch (CityNotFoundException e) {
-            city = createCityEntityFrom(cityName);
+            city = fetchCityFrom(cityName);
             cityRepository.save(city);
             LOGGER.info("City: [{}] saved to Database", city.getName());
         }
         return city;
     }
 
-    private City createCityEntityFrom(String cityName) {
+    private City fetchCityFrom(String cityName) {
+        LOGGER.info("City [{}] not found in DB, fetching from API", cityName);
         Coordinates coordinates = this.geoCodeAPIFetcher.getCoordinatesFromCityName(cityName);
         if (coordinates != null) {
             return new City(cityName,
