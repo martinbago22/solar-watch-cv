@@ -171,6 +171,7 @@ class SolarWatchServiceTest {
                 verify(cityRepository, times(1)).findByName(validCityName);
                 verify(sunriseSunsetRepository, times(1)).getSunriseSunsetByCityAndDate(validCity, validDate);
                 verify(geoCodeAPIFetcher, times(0)).getCoordinatesFromCityName(validCityName);
+                verify(cityRepository, never()).save(validCity);
             }
 
             @Test
