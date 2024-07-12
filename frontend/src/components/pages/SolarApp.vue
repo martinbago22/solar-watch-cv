@@ -1,9 +1,22 @@
 <template>
-  <div class="container">
-    <h1>Hello this is the main page!</h1>
-    <p>Search for current weather in city</p>
-    <input type="search" placeholder="City Name" v-model="requestedCity" class="input"/>
-    <button type="submit" @click.prevent="fetchWeatherInfo1(requestedCity)" class="button">Search</button>
+  <div>
+    <b-form @submit.prevent="fetchWeatherInfo1(requestedCity)">
+      <b-form-group
+        id="input-group-1"
+        label="Requested city:"
+        label-for="input-1"
+        description="Look up current weather for this city."
+      >
+        <b-form-input
+          id="input-1"
+          type="search"
+          placeholder="Requested City"
+          v-model="requestedCity"
+          required
+        ></b-form-input>
+      </b-form-group>
+      <b-button type="submit" variant="primary">Search</b-button>
+    </b-form>
   </div>
 </template>
 
@@ -11,7 +24,7 @@
 import { ref } from 'vue';
 import type { CurrentWeatherResponse } from '../../api/fetchingMethods';
 
-async function fetchWeatherInfo1(cityName :string): Promise<CurrentWeatherResponse> {
+async function fetchWeatherInfo1(cityName: string): Promise<CurrentWeatherResponse> {
   try {
     const response = await fetch(`/api/weatherforecast/current?city=${cityName}`);
     const currentWeatherResponse: CurrentWeatherResponse = await response.json();
@@ -23,47 +36,5 @@ async function fetchWeatherInfo1(cityName :string): Promise<CurrentWeatherRespon
   }
 }
 const requestedCity = ref('');
+
 </script>
-
-<style scoped>
-.container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  text-align: center;
-  font-family: Arial, sans-serif;
-}
-
-h1 {
-  font-size: 24px;
-  margin-bottom: 10px;
-}
-
-p {
-  font-size: 18px;
-  margin-bottom: 20px;
-}
-
-.input {
-  padding: 10px;
-  font-size: 16px;
-  width: 80%;
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.button {
-  padding: 10px 20px;
-  font-size: 16px;
-  color: white;
-  background-color: #007bff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.button:hover {
-  background-color: #0056b3;
-}
-</style>
