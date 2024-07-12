@@ -62,6 +62,29 @@ public class SolarWatchService {
         return sunriseSunsetInfo;
     }
 
+    public CurrentWeatherResponse getCurrentWeatherResponseFor(String cityName) {
+        Coordinates coordinates = this.geoCodeAPIFetcher.getCoordinatesFromCityName(cityName);
+        if (cityName != null && !cityName.trim().isEmpty()) {
+            return this.currentWeatherAPIFetcher
+                    .fetchCurrentWeatherResponse(coordinates);
+        } else {
+            throw new CityNotFoundException(cityName);
+        }
+    }
+
+    public CurrentWeatherInfoDTO getCurrentWeatherInfoDTOFrom(CurrentWeatherResponse currentWeatherResponse, String cityName) {
+        convertUnixUTCToLocalDateTime(currentWeatherResponse.currentWeatherAPISunriseSunsetTime().sunriseUnixUTC());
+        return new CurrentWeatherInfoDTO(cityName,
+                convertToCelsius(currentWeatherResponse.mainWeatherInfo().temperature()),
+                currentWeatherResponse.mainWeatherInfo().humidity(),
+                currentWeatherResponse.windInfo().speed(),
+                currentWeatherResponse.currentWeatherDescription()[0].description(),
+                currentWeatherResponse.visibility(),
+                provideWarningMessageAboutCloudyWeather(currentWeatherResponse),
+                currentWeatherResponse.currentWeatherAPISunriseSunsetTime().sunriseUnixUTC(),
+                currentWeatherResponse.currentWeatherAPISunriseSunsetTime().sunsetUnixUTC());
+    }
+
     private City getCityByName(String cityName) {
         return cityRepository
                 .findByName(cityName)
@@ -130,28 +153,6 @@ public class SolarWatchService {
         }
     }
 
-    public CurrentWeatherResponse getCurrentWeatherResponseFor(String cityName) {
-        Coordinates coordinates = this.geoCodeAPIFetcher.getCoordinatesFromCityName(cityName);
-        if (cityName != null && !cityName.trim().isEmpty()) {
-            return this.currentWeatherAPIFetcher
-                    .fetchCurrentWeatherResponse(coordinates);
-        } else {
-            throw new CityNotFoundException(cityName);
-        }
-    }
-
-    public CurrentWeatherInfoDTO getCurrentWeatherInfoDTOFrom(CurrentWeatherResponse currentWeatherResponse, String cityName) {
-        convertUnixUTCToLocalDateTime(currentWeatherResponse.currentWeatherAPISunriseSunsetTime().sunriseUnixUTC());
-        return new CurrentWeatherInfoDTO(cityName,
-                convertToCelsius(currentWeatherResponse.mainWeatherInfo().temperature()),
-                currentWeatherResponse.mainWeatherInfo().humidity(),
-                currentWeatherResponse.windInfo().speed(),
-                currentWeatherResponse.currentWeatherDescription()[0].description(),
-                currentWeatherResponse.visibility(),
-                provideWarningMessageAboutCloudyWeather(currentWeatherResponse),
-                currentWeatherResponse.currentWeatherAPISunriseSunsetTime().sunriseUnixUTC(),
-                currentWeatherResponse.currentWeatherAPISunriseSunsetTime().sunsetUnixUTC());
-    }
 
     private String provideWarningMessageAboutCloudyWeather(CurrentWeatherResponse currentWeatherResponse) {
         boolean isCloudyWeather = isCloudyWeather(currentWeatherResponse);

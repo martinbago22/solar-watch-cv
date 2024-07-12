@@ -23,14 +23,14 @@ public class SunController {
     }
 
     @GetMapping("/suninfo")
-    public ResponseEntity<SunriseSunsetDTO> getSunReport(@RequestParam String date, @RequestParam(defaultValue = "Budapest") String city) {
+    public ResponseEntity<SunriseSunsetDTO> getSunReport(@RequestParam String date, @RequestParam String city) {
         //TODO Logging
         SunriseSunsetDTO sunriseSunsetDTO = new SunriseSunsetDTO(solarWatchService.getSunriseSunsetInfo(city, date));
         return ResponseEntity.ok(sunriseSunsetDTO);
     }
 
     @GetMapping("/current")
-    public ResponseEntity<CurrentWeatherInfoDTO> getCurrentWeatherInfoFrom(@RequestParam(defaultValue = "Budapest") String city) {
+    public ResponseEntity<CurrentWeatherInfoDTO> getCurrentWeatherInfoFrom(@RequestParam String city) {
         CurrentWeatherResponse currentWeatherDetailsResponse =
                 solarWatchService.getCurrentWeatherResponseFor(city);
         CurrentWeatherInfoDTO currentWeatherInfoDTO = solarWatchService.getCurrentWeatherInfoDTOFrom(currentWeatherDetailsResponse, city);
