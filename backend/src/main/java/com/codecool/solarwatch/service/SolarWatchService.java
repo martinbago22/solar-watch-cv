@@ -63,8 +63,8 @@ public class SolarWatchService {
     }
 
     public CurrentWeatherResponse getCurrentWeatherResponseFor(String cityName) {
-        Coordinates coordinates = this.geoCodeAPIFetcher.getCoordinatesFromCityName(cityName);
         if (cityName != null && !cityName.trim().isEmpty()) {
+            Coordinates coordinates = this.geoCodeAPIFetcher.getCoordinatesFromCityName(cityName);
             return this.currentWeatherAPIFetcher
                     .fetchCurrentWeatherResponse(coordinates);
         } else {

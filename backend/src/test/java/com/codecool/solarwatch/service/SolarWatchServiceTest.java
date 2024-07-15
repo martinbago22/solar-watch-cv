@@ -195,5 +195,39 @@ class SolarWatchServiceTest {
                 assertEquals(expectedInfo, actualInfo);
             }
         }
+
+        @Nested
+        @DisplayName("getCurrentWeatherResponseFor method test")
+        class GetCurrentWeatherResponseForMethodTests {
+            @Nested
+            @DisplayName("getCurrentWeatherResponseFor fails")
+            class GetCurrentWeatherResponseForFails {
+                @Test
+                @DisplayName("getCurrentWeatherResponseFor throws CityNotFoundException when given null")
+                void WhenGivenNull_ThenGetCurrentResponseForThrowsCityNotFoundException() {
+                    CityNotFoundException exception = assertThrows(CityNotFoundException.class,
+                            () -> solarWatchService.getCurrentWeatherResponseFor(null));
+                    String expectedErrorMessage = "No city found under name: null";
+
+                    verify(currentWeatherAPIFetcher, never()).fetchCurrentWeatherResponse(null);
+                    verify(geoCodeAPIFetcher, never()).getCoordinatesFromCityName(null);
+                    assertEquals(expectedErrorMessage, exception.getMessage());
+                }
+
+                @Test
+                @DisplayName("getCurrentWeatherResponseFor throws CityNotFoundException when given empty string")
+                void WhenGivenEmptyString_ThenGetCurrentResponseForThrowsCityNotFoundException() {
+                    String emptyString = "";
+                    CityNotFoundException exception = assertThrows(CityNotFoundException.class,
+                            () -> solarWatchService.getCurrentWeatherResponseFor(emptyString));
+                    String expectedErrorMessage = "No city found under name: ";
+
+
+                    verify(currentWeatherAPIFetcher, never()).fetchCurrentWeatherResponse(any(Coordinates.class));
+                    verify(geoCodeAPIFetcher, never()).getCoordinatesFromCityName(emptyString);
+                    assertEquals(expectedErrorMessage, exception.getMessage());
+                }
+            }
+        }
     }
 }
