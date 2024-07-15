@@ -42,13 +42,13 @@
 
 ##  Overview
 
-This is an educational school project with the goal of practicing the Spring Boot framework for Java.  `overview`
+This is an educational school project with the goal of practicing the Spring Boot framework for Java.
 
 ---
 
 ##  Features
 
-Getting sunrise and sunset times and current weather information for cities you search for with user authentication included. `features`
+Getting sunrise and sunset times and current weather information for cities you search for with user authentication included.
 
 ---
 
