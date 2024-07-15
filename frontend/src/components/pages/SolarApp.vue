@@ -1,23 +1,12 @@
 <template>
-  <div>
-    <b-form @submit.prevent="fetchWeatherInfo1(requestedCity)">
-      <b-form-group
-        id="input-group-1"
-        label="Requested city:"
-        label-for="input-1"
-        description="Look up current weather for this city."
-      >
-        <b-form-input
-          id="input-1"
-          type="search"
-          placeholder="Requested City"
-          v-model="requestedCity"
-          required
-        ></b-form-input>
-      </b-form-group>
-      <b-button type="submit" variant="primary">Search</b-button>
-    </b-form>
+  <div class="page-header">
+    <h1>Welcome user, you are logged in!</h1>
+    <div class="input-group mb-3">
+      <input type="text" class="form-control" placeholder="Requested city" aria-label="Requested city" aria-describedby="button-addon2">
+      <button class="btn btn-primary" type="button" id="button-addon2">Search</button>
+    </div>
   </div>
+    
 </template>
 
 <script setup lang="ts">

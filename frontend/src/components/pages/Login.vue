@@ -1,16 +1,23 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div>
-    <form @submit.prevent="registerUser">
-      <label for="userName">Username</label>
-      <input placeholder="John Doe" v-model="username" id="userName" />
-
-      <label for="userName">Password</label>
-      <input placeholder="pw123" type="password" v-model="password" />
-
-      <button type="submit">Register</button>
-    </form>
-  </div>
+  <form class="row g-1 needs-validation" novalidate>
+    <div class="row-md-4">
+      <label for="validationCustom01" class="form-label">Username</label>
+      <input type="text" class="form-control" id="validationCustom01" required />
+      <span class="help-block">Must be between 4 and 10 characters long and cannot contain any special characters.</span>
+      <div class="valid-feedback">Looks good!</div>
+    </div>
+    <div class="row-md-4">
+      <label for="validationCustom02" class="form-label">Password</label>
+      <input type="password" class="form-control" id="validationCustom02" required />
+      <div class="valid-feedback">Looks good!</div>
+      <span class="help-block">Must be between 4 and 10 characters long.</span>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-outline-primary" type="submit">Register</button>
+      <button class="btn btn-outline-primary" type="submit">Submit form</button>
+    </div>
+  </form>
 </template>
 
 <script setup lang="ts">
@@ -18,59 +25,4 @@ import { ref } from 'vue';
 import { fetchWeatherInfo, registerUser } from '../../api/fetchingMethods';
 const username = ref<string>('');
 const password = ref<string>('');
-fetchWeatherInfo();
 </script>
-
-<style scoped>
-div {
-  font-family: Arial, sans-serif;
-  margin: 0 auto;
-  width: 300px;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-}
-
-h1 {
-  text-align: center;
-  color: #333;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-}
-
-label {
-  margin-bottom: 5px;
-  color: #666;
-}
-
-input {
-  margin-bottom: 15px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  font-size: 14px;
-}
-
-input:focus {
-  border-color: #007bff;
-  outline: none;
-}
-
-button {
-  padding: 10px;
-  color: #fff;
-  background-color: #007bff;
-  border: none;
-  border-radius: 3px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-</style>
