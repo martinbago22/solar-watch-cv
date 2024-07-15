@@ -25,7 +25,7 @@ public class GeoCodeAPIFetcher {
         this.webClient = webClient;
     }
 
-    public Coordinates getCoordinatesFromCityName(@NotBlank(message = "City parameter cannot be empty or null") String cityName) {
+    public Coordinates getCoordinatesFrom(@NotBlank(message = "City parameter cannot be empty or null") String cityName) {
         String url = String.format("http://api.openweathermap.org/geo/1.0/direct?q=%s&limit=1&appid=%s",
                 cityName, API_KEY);
 
@@ -40,7 +40,7 @@ public class GeoCodeAPIFetcher {
                         return Mono.just(coordinatesList.getFirst());
                     } else {
                         LOGGER.error("No city found under name: [{}]", cityName);
-                        return Mono.empty();
+                        return Mono.error(new CityNotFoundException(cityName));
                     }
                 })
                 .block();

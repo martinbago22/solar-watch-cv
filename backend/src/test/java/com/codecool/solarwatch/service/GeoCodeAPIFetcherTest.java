@@ -24,7 +24,7 @@ class GeoCodeAPIFetcherTest {
     void WhenGetCoordinatesFromCity_ThenCoordinatesGetReturned() {
         Coordinates expected = new Coordinates(0, 1, "Hungary", "Bács-Kiskun");
 
-        Coordinates actual = geoCodeAPIFetcher.getCoordinatesFromCityName("asd");
+        Coordinates actual = geoCodeAPIFetcher.getCoordinatesFrom("asd");
 
         assertEquals(expected, actual);
     }
@@ -33,7 +33,7 @@ class GeoCodeAPIFetcherTest {
     void WhenCityIsNull_ThenInvalidCityExceptionIsThrown() {
 
         assertThrows(CityNotFoundException.class, () -> this.geoCodeAPIFetcher
-                .getCoordinatesFromCityName(null));
+                .getCoordinatesFrom(null));
     }
 
     @Test
@@ -43,6 +43,6 @@ class GeoCodeAPIFetcherTest {
                 .thenReturn(Mono.just(null));*/
 
         assertThrows(CityNotFoundException.class, () -> this.geoCodeAPIFetcher
-                .getCoordinatesFromCityName(invalidCityName));
+                .getCoordinatesFrom(invalidCityName));
     }
 }

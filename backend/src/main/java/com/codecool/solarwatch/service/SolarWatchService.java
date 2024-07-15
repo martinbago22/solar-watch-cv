@@ -64,8 +64,8 @@ public class SolarWatchService {
 
     public CurrentWeatherResponse getCurrentWeatherResponseFor(String cityName) {
         if (cityName != null && !cityName.trim().isEmpty()) {
-            Coordinates coordinates = this.geoCodeAPIFetcher.getCoordinatesFromCityName(cityName);
-            return this.currentWeatherAPIFetcher
+            Coordinates coordinates = geoCodeAPIFetcher.getCoordinatesFrom(cityName);
+            return currentWeatherAPIFetcher
                     .fetchCurrentWeatherResponse(coordinates);
         } else {
             throw new CityNotFoundException(cityName);
@@ -123,7 +123,7 @@ public class SolarWatchService {
 
     private City fetchCityFrom(String cityName) {
         LOGGER.info("City [{}] not found in DB, fetching from API", cityName);
-        Coordinates coordinates = this.geoCodeAPIFetcher.getCoordinatesFromCityName(cityName);
+        Coordinates coordinates = geoCodeAPIFetcher.getCoordinatesFrom(cityName);
         if (coordinates != null) {
             return new City(cityName,
                     coordinates);
