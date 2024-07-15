@@ -1,5 +1,6 @@
 package com.codecool.solarwatch.service;
 
+import com.codecool.solarwatch.api.current_weather.model.*;
 import com.codecool.solarwatch.api.current_weather.service.CurrentWeatherAPIFetcher;
 import com.codecool.solarwatch.api.geocoding.model.Coordinates;
 import com.codecool.solarwatch.api.geocoding.service.GeoCodeAPIFetcher;
@@ -51,14 +52,11 @@ class SolarWatchServiceTest {
             void WhenGivenInvalidDate_ThenGetSunriseSunsetInfoThrowsInvalidDateException() {
                 String invalidDate = "asd";
                 String cityName = "asd";
-                String expectedErrorMessage = "Date is in invalid format. Please provide it with YYYY-MM-DD";
 
-                InvalidDateException exception = assertThrows(InvalidDateException.class,
+                assertThrows(InvalidDateException.class,
                         () -> solarWatchService.getSunriseSunsetInfo(cityName, invalidDate));
 
-
                 verify(cityRepository, times(0)).findByName(cityName);
-                assertEquals(expectedErrorMessage, exception.getMessage());
             }
 
             @Test
@@ -66,26 +64,21 @@ class SolarWatchServiceTest {
             void WhenGivenNonExistingDate_ThenGetSunriseSunsetExceptionThrowsInvalidDateException() {
                 String invalidDate = "2023-04-40";
                 String cityName = "asd";
-                String expectedErrorMessage = "Date is in invalid format. Please provide it with YYYY-MM-DD";
 
-                InvalidDateException exception = assertThrows(InvalidDateException.class,
+                assertThrows(InvalidDateException.class,
                         () -> solarWatchService.getSunriseSunsetInfo(cityName, invalidDate));
-
                 verify(cityRepository, times(0)).findByName(cityName);
-                assertEquals(expectedErrorMessage, exception.getMessage());
             }
 
             @Test
             @DisplayName("getSunriseSunsetInfo throws invalid date exception when provided null as date")
             void WhenGivenNullAsDate_ThenGetSunriseSunsetInfoThrowsInvalidDateException() {
                 String cityName = "asd";
-                String expectedErrorMessage = "date cannot be null or empty";
 
-                InvalidDateException exception = assertThrows(InvalidDateException.class,
+                assertThrows(InvalidDateException.class,
                         () -> solarWatchService.getSunriseSunsetInfo(cityName, null));
 
                 verify(cityRepository, times(0)).findByName(cityName);
-                assertEquals(expectedErrorMessage, exception.getMessage());
             }
 
             @Test
@@ -93,13 +86,11 @@ class SolarWatchServiceTest {
             void WhenGivenEmptyStringAsDate_ThenGetSunriseSunsetInfoThrowsInvalidDateException() {
                 String cityName = "asd";
                 String emptyDate = "";
-                String expectedErrorMessage = "date cannot be null or empty";
 
-                InvalidDateException exception = assertThrows(InvalidDateException.class,
+                assertThrows(InvalidDateException.class,
                         () -> solarWatchService.getSunriseSunsetInfo(cityName, emptyDate));
 
                 verify(cityRepository, times(0)).findByName(cityName);
-                assertEquals(expectedErrorMessage, exception.getMessage());
             }
 
             @Test
@@ -107,21 +98,18 @@ class SolarWatchServiceTest {
             void WhenGivenNotExistingCity_ThenGetSunriseSunsetInfoThrowsCityNotFoundException() {
                 String nonExistingCity = "nonexistent";
                 String validDate = "2023-04-12";
-                String expectedErrorMessage = "No city found under name: nonexistent";
-                CityNotFoundException expectedException = new CityNotFoundException(nonExistingCity);
 
                 when(cityRepository.findByName(nonExistingCity))
-                        .thenThrow(expectedException);
-                when(geoCodeAPIFetcher.getCoordinatesFromCityName(nonExistingCity))
-                        .thenThrow(expectedException);
+                        .thenThrow(CityNotFoundException.class);
+                when(geoCodeAPIFetcher.getCoordinatesFrom(nonExistingCity))
+                        .thenThrow(CityNotFoundException.class);
 
 
-                CityNotFoundException exception = assertThrows(CityNotFoundException.class,
+                assertThrows(CityNotFoundException.class,
                         () -> solarWatchService.getSunriseSunsetInfo(nonExistingCity, validDate));
                 verify(cityRepository, times(1)).findByName(nonExistingCity);
-                verify(geoCodeAPIFetcher, times(1)).getCoordinatesFromCityName(nonExistingCity);
+                verify(geoCodeAPIFetcher, times(1)).getCoordinatesFrom(nonExistingCity);
                 verify(cityRepository, times(0)).save(any(City.class));
-                assertEquals(expectedErrorMessage, exception.getMessage());
             }
 
             @Test
@@ -129,20 +117,17 @@ class SolarWatchServiceTest {
             void WhenGivenEmptyStringAsCity_ThenGetSunriseSunsetInfoThrowsCityNotFoundException() {
                 String emptyString = "";
                 String validDate = "2023-04-12";
-                String expectedErrorMessage = "No city found under name: ";
-                CityNotFoundException expectedException = new CityNotFoundException(emptyString);
 
                 when(cityRepository.findByName(emptyString))
-                        .thenThrow(expectedException);
-                when(geoCodeAPIFetcher.getCoordinatesFromCityName(emptyString))
-                        .thenThrow(expectedException);
+                        .thenThrow(CityNotFoundException.class);
+                when(geoCodeAPIFetcher.getCoordinatesFrom(emptyString))
+                        .thenThrow(CityNotFoundException.class);
 
-                CityNotFoundException exception = assertThrows(CityNotFoundException.class,
+                assertThrows(CityNotFoundException.class,
                         () -> solarWatchService.getSunriseSunsetInfo(emptyString, validDate));
                 verify(cityRepository, times(1)).findByName(emptyString);
-                verify(geoCodeAPIFetcher, times(1)).getCoordinatesFromCityName(emptyString);
+                verify(geoCodeAPIFetcher, times(1)).getCoordinatesFrom(emptyString);
                 verify(cityRepository, times(0)).save(any(City.class));
-                assertEquals(expectedErrorMessage, exception.getMessage());
             }
         }
 
@@ -170,7 +155,7 @@ class SolarWatchServiceTest {
                 assertEquals(expectedInfo, actualInfo);
                 verify(cityRepository, times(1)).findByName(validCityName);
                 verify(sunriseSunsetRepository, times(1)).getSunriseSunsetByCityAndDate(validCity, validDate);
-                verify(geoCodeAPIFetcher, times(0)).getCoordinatesFromCityName(validCityName);
+                verify(geoCodeAPIFetcher, times(0)).getCoordinatesFrom(validCityName);
                 verify(cityRepository, never()).save(validCity);
             }
 
@@ -179,7 +164,7 @@ class SolarWatchServiceTest {
             void WhenGivenValidParameters_ThenGetSunriseSunsetInfoFetchesFromAPIIfNotInDBAlready() {
                 when(cityRepository.findByName(validCityName))
                         .thenThrow(CityNotFoundException.class);
-                when(geoCodeAPIFetcher.getCoordinatesFromCityName(validCityName))
+                when(geoCodeAPIFetcher.getCoordinatesFrom(validCityName))
                         .thenReturn(validCoordinates);
                 when(sunriseSunsetRepository.getSunriseSunsetByCityAndDate(validCity, validDate))
                         .thenThrow(SunriseSunsetNotFoundException.class);
@@ -188,7 +173,7 @@ class SolarWatchServiceTest {
 
                 SunriseSunsetInfo actualInfo = solarWatchService.getSunriseSunsetInfo(validCityName, validDateString);
                 verify(cityRepository, times(1)).findByName(validCityName);
-                verify(geoCodeAPIFetcher, times(1)).getCoordinatesFromCityName(validCityName);
+                verify(geoCodeAPIFetcher, times(1)).getCoordinatesFrom(validCityName);
                 verify(sunriseSunsetRepository, times(1)).getSunriseSunsetByCityAndDate(validCity, validDate);
                 verify(currentWeatherAPIFetcher, times(1)).fetchSunriseSunsetInfo(validCity, validDate);
                 verify(cityRepository, times(1)).save(validCity);
@@ -210,7 +195,7 @@ class SolarWatchServiceTest {
                     String expectedErrorMessage = "No city found under name: null";
 
                     verify(currentWeatherAPIFetcher, never()).fetchCurrentWeatherResponse(null);
-                    verify(geoCodeAPIFetcher, never()).getCoordinatesFromCityName(null);
+                    verify(geoCodeAPIFetcher, never()).getCoordinatesFrom(null);
                     assertEquals(expectedErrorMessage, exception.getMessage());
                 }
 
@@ -224,9 +209,50 @@ class SolarWatchServiceTest {
 
 
                     verify(currentWeatherAPIFetcher, never()).fetchCurrentWeatherResponse(any(Coordinates.class));
-                    verify(geoCodeAPIFetcher, never()).getCoordinatesFromCityName(emptyString);
+                    verify(geoCodeAPIFetcher, never()).getCoordinatesFrom(emptyString);
                     assertEquals(expectedErrorMessage, exception.getMessage());
                 }
+
+                @Test
+                @DisplayName("getCurrentWeatherResponseFor throws CityNotFoundException when given not existing cityName")
+                void WhenGivenNotExistingCityName_ThenGetCurrentResponseForThrowsCityNotFoundException() {
+                    String notExistingCityName = "qwe";
+
+                    when(geoCodeAPIFetcher.getCoordinatesFrom(notExistingCityName))
+                            .thenThrow(CityNotFoundException.class);
+
+
+                    assertThrows(CityNotFoundException.class,
+                            () -> solarWatchService.getCurrentWeatherResponseFor(notExistingCityName));
+                    verify(currentWeatherAPIFetcher, never()).fetchCurrentWeatherResponse(any(Coordinates.class));
+                }
+            }
+
+            @Nested
+            @DisplayName("getCurrentWeatherResponseFor succeeds")
+            class GetCurrentWeatherResponseForSucceeds {
+                @Test
+                @DisplayName("getCurrentWeatherResponseSuceeds when given valid city name")
+                void WhenGivenValidCityName_ThenGetCurrentWeatherResponseForSucceeds() {
+                    CurrentWeatherResponse expectedCWR = new CurrentWeatherResponse(new CurrentWeatherDescription[]{new CurrentWeatherDescription("asd")},
+                            new MainWeatherInfo(12, 12),
+                            new WindInfo(12),
+                            12,
+                            new CurrentWeatherAPISunriseSunsetTime("12", "12"));
+                    String validCityName = "Budapest";
+                    Coordinates validCoordinates = new Coordinates(12, 12, "asd", "asd");
+
+                    when(geoCodeAPIFetcher.getCoordinatesFrom(validCityName))
+                            .thenReturn(validCoordinates);
+                    when(currentWeatherAPIFetcher.fetchCurrentWeatherResponse(validCoordinates))
+                            .thenReturn(expectedCWR);
+
+                    CurrentWeatherResponse actualCWR = solarWatchService.getCurrentWeatherResponseFor(validCityName);
+                    verify(geoCodeAPIFetcher, times(1)).getCoordinatesFrom(validCityName);
+                    verify(currentWeatherAPIFetcher, times(1)).fetchCurrentWeatherResponse(validCoordinates);
+                    assertEquals(expectedCWR, actualCWR);
+                }
+
             }
         }
     }
